@@ -12,6 +12,76 @@ Knowly 是一个 Chrome 扩展。你可以在网页中选中不熟悉的概念�
 - Markdown 文件包含选中内容、AI 解释、追问、个人笔记和来源信息。
 - 卡片可拖动和调整尺寸。待保存清单保存在当前浏览器中。
 
+## 安装与使用截图
+
+以下截图按实际操作顺序展示 Knowly 的本地安装、模型配置、卡片使用与 Markdown 导出过程。截图中的 API Key 已遮蔽；使用者需要在自己的浏览器扩展设置中填写 Key。
+
+### 1. 从 Chrome 打开扩展管理页
+
+打开 Chrome 菜单，进入“扩展程序”，再选择“加载未打包的扩展程序”。
+
+![打开 Chrome 扩展管理页](docs/images/01-open-chrome-extensions.png)
+
+### 2. 选择已构建的扩展目录
+
+在文件夹选择窗口中，选择包含 `manifest.json` 的 `chrome-mv3` 目录，然后确认。
+
+![选择未打包的扩展目录](docs/images/02-select-unpacked-folder.png)
+
+### 3. 确认 Knowly 已加载
+
+扩展管理页出现 Knowly 卡片，且扩展开关已启用，即表示本地加载完成。
+
+![Knowly 已加载到 Chrome](docs/images/03-extension-loaded.png)
+
+### 4. 打开扩展详情
+
+在 Knowly 卡片上点击“详细信息”，进入扩展设置。
+
+![打开 Knowly 扩展详情](docs/images/04-open-extension-details.png)
+
+### 5. 进入扩展程序选项
+
+在详情页点击“扩展程序选项”，打开模型配置页面。
+
+![打开扩展程序选项](docs/images/05-open-extension-options.png)
+
+### 6. 选择模型平台与模型 ID
+
+在设置页选择 DeepSeek、智谱 GLM 或豆包，并按模型平台的要求填写模型 ID。
+
+![选择模型平台和模型 ID](docs/images/06-select-model-provider.png)
+
+### 7. 测试连接并保存模型配置
+
+填写对应平台签发的 API Key 和模型 ID，点击“测试连接”。连接成功后点击“保存并使用此模型”。示例截图里的 Key 已遮蔽，请勿将真实 Key 放入截图或提交到仓库。
+
+![测试模型连接并保存配置，API Key 已遮蔽](docs/images/07-test-and-save-api-key.png)
+
+### 8. 继续追问、记录笔记并加入待保存清单
+
+解释卡片支持继续追问和记录个人笔记；可将卡片加入待保存清单，或加入后继续选择其他内容。
+
+![卡片追问、笔记与待保存清单](docs/images/08-follow-up-notes-and-pending-list.png)
+
+### 9. 管理多张卡片
+
+待保存清单可以收集多张学习卡片。长回答会保留在对应卡片中，可继续查看和导出。
+
+![多张卡片与追问回答](docs/images/09-multiple-cards-and-follow-up-answer.png)
+
+### 10. 在 Chrome 下载记录中确认导出文件
+
+合并导出后，可在 Chrome 下载记录中查看 Markdown 文件及其保存状态。
+
+![Chrome 下载记录中的 Markdown 文件](docs/images/10-download-markdown.png)
+
+### 11. 查看导出的 Markdown
+
+导出文件包含学习卡片内容，可用本地 Markdown 编辑器或兼容的文档工具打开查看。
+
+![查看导出的 Markdown 学习卡片](docs/images/11-view-exported-markdown.png)
+
 ## 环境要求
 
 - Windows 或 macOS 电脑。
