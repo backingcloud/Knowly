@@ -89,30 +89,26 @@ Knowly 是一个 Chrome 扩展。你可以在网页中选中不熟悉的概念�
 - Node.js LTS 和 npm，仅在从源码构建时需要。
 - 一个支持的模型平台账号，以及由该平台签发的 API Key。
 
-## 安装方式一：下载已构建版本
+## 安装方式一：直接使用已构建版本（无需 Node.js）
 
-如果项目提供了 `chrome-mv3` 发布压缩包：
+仓库中的 `release/chrome-mv3` 已包含 Chrome 可加载的扩展文件。使用此版本无需安装 Node.js，也无需运行 `npm ci` 或 `npm run build`。
 
-1. 下载并解压压缩包，找到其中包含 `manifest.json` 的 `chrome-mv3` 文件夹。
-2. 在 Chrome 地址栏输入 `chrome://extensions` 并按回车。
+1. 在 GitHub 仓库页面点击 **Code → Download ZIP**，下载并解压项目。
+2. 打开 Chrome，在地址栏输入 `chrome://extensions` 并按回车。
 3. 打开页面右上角的“开发者模式”。
-4. 点击“加载已解压的扩展程序”，选择 `chrome-mv3` 文件夹。
-5. 安装后，建议将 Knowly 固定到 Chrome 工具栏，方便查看扩展选项。
+4. 点击“加载已解压的扩展程序”，选择解压后项目中的 `release/chrome-mv3` 文件夹（该目录内应能看到 `manifest.json`）。
+5. 加载完成后，按“配置模型”章节填写自己的模型平台、API Key 和模型 ID。
 
 ## 安装方式二：从源码构建
 
-1. 安装 Node.js LTS。安装程序通常会一并安装 npm。
-2. 将项目下载到本机并解压，或使用 Git 克隆项目。
-3. 在项目文件夹中打开 PowerShell 或终端，运行：
+如果要从源码自行构建，需要安装 Node.js LTS（安装后会附带 npm）。在项目目录打开 PowerShell 或终端，运行：
 
-   ```powershell
-   npm ci
-   npm run build
-   ```
+```powershell
+npm ci
+npm run build
+```
 
-4. 等待命令完成。构建产物位于 `.output/chrome-mv3`。
-5. 按照上面“安装方式一”的第 2–4 步，在 Chrome 中加载 `.output/chrome-mv3` 文件夹。
-
+构建完成后，在 Chrome 地址栏打开 `chrome://extensions`，开启“开发者模式”，点击“加载已解压的扩展程序”，选择 `.output/chrome-mv3` 文件夹（该目录内应能看到 `manifest.json`）。
 ## 配置模型
 
 1. 打开 `chrome://extensions`。
