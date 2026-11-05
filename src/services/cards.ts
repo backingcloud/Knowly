@@ -16,6 +16,23 @@ function oneLine(value: string): string {
   return value.replace(/[\r\n]+/g, ' ').trim();
 }
 
+function cleanAiMarkdown(value: string): string {
+  let inCodeFence = false;
+  const lines = value.split(/\r?\n/).map(line => {
+    if (/^\s*(?:`{3,}|~{3,})/.test(line)) {
+      inCodeFence = !inCodeFence;
+      return line.trimEnd();
+    }
+    if (inCodeFence) return line.trimEnd();
+    return line
+      .replace(/(\*\*(?:这是什么|是什么|有什么用|用途|举个例子|例子|总结|注意事项|工作流程)[：:]?\*\*)[\s\u200B\u2060]*(?:↓|⬇(?:️|︎)?|⇩|⤵(?:️|︎)?|👇|↡|⇓)+/giu, '$1')
+      .replace(/[\s\u200B\u2060]*(?:↓|⬇(?:️|︎)?|⇩|⤵(?:️|︎)?|👇|↡|⇓|&darr;|&#(?:8595|x2193);)+(?=[*_`~]*[\s\u200B\u2060]*$)/giu, '')
+      .replace(/[\t \u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]{2,}/gu, ' ')
+      .trimEnd();
+  });
+  return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 function chineseNumber(value: number): string {
   const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
   if (value <= 0 || value > 99) return String(value);
@@ -39,14 +56,16 @@ export function cardToMarkdown(card: LearningCard, index: number): string {
     `> ${oneLine(card.term)}`,
   ];
   if (card.context?.trim()) lines.push('', '**所在句子：**', '', `> ${card.context.trim().replace(/\r?\n/g, '\n> ')}`);
-  lines.push('', '### 2. AI 解释', '', card.explanation.definition.trim());
-  if (card.explanation.usage.trim()) lines.push('', `**有什么用：** ${card.explanation.usage.trim()}`);
-  if (card.explanation.example.trim()) lines.push('', `**举个例子：** ${card.explanation.example.trim()}`);
+  lines.push('', '### 2. AI 解释', '', cleanAiMarkdown(card.explanation.definition));
+  const usage = cleanAiMarkdown(card.explanation.usage);
+  const example = cleanAiMarkdown(card.explanation.example);
+  if (usage) lines.push('', `**有什么用：** ${usage}`);
+  if (example) lines.push('', `**举个例子：** ${example}`);
 
   let sectionNumber = 3;
   if (card.followUps.length) {
     lines.push('', `### ${sectionNumber}. 继续追问`);
-    for (const turn of card.followUps) lines.push('', `**问：** ${turn.question}`, '', `**答：** ${turn.answer}`);
+    for (const turn of card.followUps) lines.push('', `**问：** ${turn.question}`, '', `**答：** ${cleanAiMarkdown(turn.answer)}`);
     sectionNumber += 1;
   }
   if (card.personalNote.trim()) lines.push('', `### ${sectionNumber}. 我的笔记`, '', card.personalNote.trim());
