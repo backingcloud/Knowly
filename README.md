@@ -25,7 +25,7 @@ Knowly 是一个 Chrome 扩展。你可以在网页中选中不熟悉的概念�
 ### 2. 选择已构建的扩展目录
 
 在文件夹选择窗口中，选择包含 `manifest.json` 的 `chrome-mv3` 目录，然后确认。
-
+插件在release文件夹下
 ![选择未打包的扩展目录](docs/images/02-select-unpacked-folder.png)
 
 ### 3. 确认 Knowly 已加载
