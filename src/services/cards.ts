@@ -16,54 +16,73 @@ function oneLine(value: string): string {
   return value.replace(/[\r\n]+/g, ' ').trim();
 }
 
+function cleanAiMarkdown(value: string): string {
+  let inCodeFence = false;
+  const lines = value.split(/\r?\n/).map(line => {
+    if (/^\s*(?:`{3,}|~{3,})/.test(line)) {
+      inCodeFence = !inCodeFence;
+      return line.trimEnd();
+    }
+    if (inCodeFence) return line.trimEnd();
+    return line
+      .replace(/(\*\*(?:����ʲô|��ʲô|��ʲô��|��;|�ٸ�����|����|�ܽ�|ע������|��������)[��:]?\*\*)[\s\u200B\u2060]*(?:��|?(?:?|?)?|?|?(?:?|?)?|??|?|?)+/giu, '$1')
+      .replace(/[\s\u200B\u2060]*(?:��|?(?:?|?)?|?|?(?:?|?)?|??|?|?|&darr;|&#(?:8595|x2193);)+(?=[*_`~]*[\s\u200B\u2060]*$)/giu, '')
+      .replace(/[\t \u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]{2,}/gu, ' ')
+      .trimEnd();
+  });
+  return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
 function chineseNumber(value: number): string {
-  const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  const digits = ['��', 'һ', '��', '��', '��', '��', '��', '��', '��', '��'];
   if (value <= 0 || value > 99) return String(value);
-  if (value <= 10) return value === 10 ? '十' : digits[value];
-  if (value < 20) return `十${digits[value % 10]}`;
+  if (value <= 10) return value === 10 ? 'ʮ' : digits[value];
+  if (value < 20) return `ʮ${digits[value % 10]}`;
   const tens = Math.floor(value / 10);
   const ones = value % 10;
-  return `${digits[tens]}十${ones ? digits[ones] : ''}`;
+  return `${digits[tens]}ʮ${ones ? digits[ones] : ''}`;
 }
 
 export function cardToMarkdown(card: LearningCard, index: number): string {
   const provider: ProviderId = card.explanation.provider ?? 'deepseek';
-  const providerLabel: Record<ProviderId, string> = { deepseek: 'DeepSeek', zhipu: '智谱 GLM', doubao: '豆包' };
+  const providerLabel: Record<ProviderId, string> = { deepseek: 'DeepSeek', zhipu: '���� GLM', doubao: '����' };
   const lines = [
-    `## ${chineseNumber(index)}、${oneLine(card.term)}`,
+    `## ${chineseNumber(index)}��${oneLine(card.term)}`,
     '',
-    `> 来源：[${oneLine(card.sourceTitle || card.sourceUrl)}](${card.sourceUrl})　·　模型：${providerLabel[provider]}　·　保存时间：${card.createdAt}`,
+    `> ��Դ��[${oneLine(card.sourceTitle || card.sourceUrl)}](${card.sourceUrl})������ģ�ͣ�${providerLabel[provider]}����������ʱ�䣺${card.createdAt}`,
     '',
-    '### 1. 选中内容',
+    '### 1. ѡ������',
     '',
     `> ${oneLine(card.term)}`,
   ];
-  if (card.context?.trim()) lines.push('', '**所在句子：**', '', `> ${card.context.trim().replace(/\r?\n/g, '\n> ')}`);
-  lines.push('', '### 2. AI 解释', '', card.explanation.definition.trim());
-  if (card.explanation.usage.trim()) lines.push('', `**有什么用：** ${card.explanation.usage.trim()}`);
-  if (card.explanation.example.trim()) lines.push('', `**举个例子：** ${card.explanation.example.trim()}`);
+  if (card.context?.trim()) lines.push('', '**���ھ��ӣ�**', '', `> ${card.context.trim().replace(/\r?\n/g, '\n> ')}`);
+  lines.push('', '### 2. AI ����', '', cleanAiMarkdown(card.explanation.definition));
+  const usage = cleanAiMarkdown(card.explanation.usage);
+  const example = cleanAiMarkdown(card.explanation.example);
+  if (usage) lines.push('', `**��ʲô�ã�** ${usage}`);
+  if (example) lines.push('', `**�ٸ����ӣ�** ${example}`);
 
   let sectionNumber = 3;
   if (card.followUps.length) {
-    lines.push('', `### ${sectionNumber}. 继续追问`);
-    for (const turn of card.followUps) lines.push('', `**问：** ${turn.question}`, '', `**答：** ${turn.answer}`);
+    lines.push('', `### ${sectionNumber}. ����׷��`);
+    for (const turn of card.followUps) lines.push('', `**�ʣ�** ${turn.question}`, '', `**��** ${cleanAiMarkdown(turn.answer)}`);
     sectionNumber += 1;
   }
-  if (card.personalNote.trim()) lines.push('', `### ${sectionNumber}. 我的笔记`, '', card.personalNote.trim());
+  if (card.personalNote.trim()) lines.push('', `### ${sectionNumber}. �ҵıʼ�`, '', card.personalNote.trim());
   return lines.join('\n');
 }
 
 export function cardsToMarkdown(cards: LearningCard[]): string {
   const day = new Date().toLocaleDateString('sv-SE');
-  return `# Knowly 学习卡片 · ${day} · 共 ${cards.length} 张\n\n${cards.map((card, index) => cardToMarkdown(card, index + 1)).join('\n\n---\n\n')}\n`;
+  return `# Knowly ѧϰ��Ƭ �� ${day} �� �� ${cards.length} ��\n\n${cards.map((card, index) => cardToMarkdown(card, index + 1)).join('\n\n---\n\n')}\n`;
 }
 
 export function markdownFilename(cards: LearningCard[]): string {
   const now = new Date();
   const pad = (value: number, length = 2) => String(value).padStart(length, '0');
   const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}-${pad(now.getMilliseconds(), 3)}`;
-  const topic = cards.length === 1 ? cards[0].term : `${cards[0]?.term || '学习卡片'}-等${cards.length}张`;
-  const safe = topic.replace(/[\\/:*?"<>|\r\n]+/g, '-').replace(/\s+/g, '-').trim().slice(0, 40) || '学习卡片';
+  const topic = cards.length === 1 ? cards[0].term : `${cards[0]?.term || 'ѧϰ��Ƭ'}-��${cards.length}��`;
+  const safe = topic.replace(/[\\/:*?"<>|\r\n]+/g, '-').replace(/\s+/g, '-').trim().slice(0, 40) || 'ѧϰ��Ƭ';
   return `Knowly-${safe}-${timestamp}.md`;
 }
 
@@ -80,3 +99,4 @@ export function downloadMarkdown(cards: LearningCard[]): void {
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
+
