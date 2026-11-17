@@ -120,3 +120,26 @@ tests/                        Playwright 扩展测试
 ## 当前范围
 
 项目目前以 Chrome Manifest V3 扩展为目标。尚未提供 Chrome Web Store 上架包、在线服务、账号系统或云端笔记同步。公开仓库中的构建产物和依赖目录应由 `.gitignore` 排除；用户的模型 Key 需要在本机浏览器中配置。
+
+### 自动化测试
+
+首次运行先安装 Playwright 配套浏览器：
+
+```powershell
+npx playwright install chromium
+npm test
+```
+
+`npm test` 会先构建最新扩展，再用配套 Chromium 的持久化浏览器上下文加载扩展，并检查后台 Service Worker 和页面内容脚本。测试使用无头 Chromium，不使用本机普通 Chrome 或 `KNOWLY_BROWSER_EXECUTABLE` 覆盖，避免扩展侧载参数不受支持。
+
+若环境需要把浏览器安装在项目内，可使用：
+
+```powershell
+$env:PLAYWRIGHT_BROWSERS_PATH = "$PWD\.playwright"
+npx playwright install chromium
+npm test
+```
+
+配置会自动识别项目内的 `.playwright` 缓存；该目录已加入 Git 忽略。测试服务器固定使用 4174 端口，端口被占用时会明确报错。
+
+测试覆盖原句选中文字加粗、按钮顺序、划词、解释、上下文开关、追问、复制、笔记、单卡下载、清单更新与持久化、合并导出、异常重试及小屏布局。只有外部模型 HTTP 响应使用固定测试数据；扩展注入、消息通信、流式解析、存储和文件下载均运行真实代码，不需要真实 API Key，也不验证模型平台的实时可用性。

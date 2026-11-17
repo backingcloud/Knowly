@@ -16,6 +16,11 @@ function oneLine(value: string): string {
   return value.replace(/[\r\n]+/g, ' ').trim();
 }
 
+function boldSelectedTerm(sentence: string, term: string): string {
+  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return escapedTerm ? sentence.replace(new RegExp(escapedTerm, 'giu'), match => `**${match}**`) : sentence;
+}
+
 function cleanAiMarkdown(value: string): string {
   let inCodeFence = false;
   const lines = value.split(/\r?\n/).map(line => {
@@ -51,11 +56,12 @@ export function cardToMarkdown(card: LearningCard, index: number): string {
     '',
     `> 来源：[${oneLine(card.sourceTitle || card.sourceUrl)}](${card.sourceUrl})　·　模型：${providerLabel[provider]}　·　保存时间：${card.createdAt}`,
     '',
-    '### 1. 选中内容',
+    '### 1. 原句',
     '',
-    `> ${oneLine(card.term)}`,
+    card.context?.trim()
+      ? `> ${boldSelectedTerm(card.context.trim().replace(/\r?\n/g, ' '), card.term)}`
+      : `> ${oneLine(card.term)}`,
   ];
-  if (card.context?.trim()) lines.push('', '**所在句子：**', '', `> ${card.context.trim().replace(/\r?\n/g, '\n> ')}`);
   lines.push('', '### 2. AI 解释', '', cleanAiMarkdown(card.explanation.definition));
   const usage = cleanAiMarkdown(card.explanation.usage);
   const example = cleanAiMarkdown(card.explanation.example);
