@@ -12,6 +12,76 @@ Knowly 是一个 Chrome 扩展。你可以在网页中选中不熟悉的概念�
 - Markdown 文件包含选中内容、AI 解释、追问、个人笔记和来源信息。
 - 卡片可拖动和调整尺寸。待保存清单保存在当前浏览器中。
 
+## 安装与使用截图
+
+以下截图按实际操作顺序展示 Knowly 的本地安装、模型配置、卡片使用与 Markdown 导出过程。截图中的 API Key 已遮蔽；使用者需要在自己的浏览器扩展设置中填写 Key。
+
+### 1. 从 Chrome 打开扩展管理页
+
+打开 Chrome 菜单，进入“扩展程序”，再选择“加载未打包的扩展程序”。
+
+![打开 Chrome 扩展管理页](docs/images/01-open-chrome-extensions.png)
+
+### 2. 选择已构建的扩展目录
+
+在文件夹选择窗口中，选择包含 `manifest.json` 的 `chrome-mv3` 目录，然后确认。
+插件在release文件夹下
+![选择未打包的扩展目录](docs/images/02-select-unpacked-folder.png)
+
+### 3. 确认 Knowly 已加载
+
+扩展管理页出现 Knowly 卡片，且扩展开关已启用，即表示本地加载完成。
+
+![Knowly 已加载到 Chrome](docs/images/03-extension-loaded.png)
+
+### 4. 打开扩展详情
+
+在 Knowly 卡片上点击“详细信息”，进入扩展设置。
+
+![打开 Knowly 扩展详情](docs/images/04-open-extension-details.png)
+
+### 5. 进入扩展程序选项
+
+在详情页点击“扩展程序选项”，打开模型配置页面。
+
+![打开扩展程序选项](docs/images/05-open-extension-options.png)
+
+### 6. 选择模型平台与模型 ID
+
+在设置页选择 DeepSeek、智谱 GLM 或豆包，并按模型平台的要求填写模型 ID。
+
+![选择模型平台和模型 ID](docs/images/06-select-model-provider.png)
+
+### 7. 测试连接并保存模型配置
+
+填写对应平台签发的 API Key 和模型 ID，点击“测试连接”。连接成功后点击“保存并使用此模型”。示例截图里的 Key 已遮蔽，请勿将真实 Key 放入截图或提交到仓库。
+
+![测试模型连接并保存配置，API Key 已遮蔽](docs/images/07-test-and-save-api-key.png)
+
+### 8. 继续追问、记录笔记并加入待保存清单
+
+解释卡片支持继续追问和记录个人笔记；可将卡片加入待保存清单，或加入后继续选择其他内容。
+
+![卡片追问、笔记与待保存清单](docs/images/08-follow-up-notes-and-pending-list.png)
+
+### 9. 管理多张卡片
+
+待保存清单可以收集多张学习卡片。长回答会保留在对应卡片中，可继续查看和导出。
+
+![多张卡片与追问回答](docs/images/09-multiple-cards-and-follow-up-answer.png)
+
+### 10. 在 Chrome 下载记录中确认导出文件
+
+合并导出后，可在 Chrome 下载记录中查看 Markdown 文件及其保存状态。
+
+![Chrome 下载记录中的 Markdown 文件](docs/images/10-download-markdown.png)
+
+### 11. 查看导出的 Markdown
+
+导出文件包含学习卡片内容，可用本地 Markdown 编辑器或兼容的文档工具打开查看。
+
+![查看导出的 Markdown 学习卡片](docs/images/11-view-exported-markdown.png)
+
 ## 环境要求
 
 - Windows 或 macOS 电脑。
@@ -19,30 +89,26 @@ Knowly 是一个 Chrome 扩展。你可以在网页中选中不熟悉的概念�
 - Node.js LTS 和 npm，仅在从源码构建时需要。
 - 一个支持的模型平台账号，以及由该平台签发的 API Key。
 
-## 安装方式一：下载已构建版本
+## 安装方式一：直接使用已构建版本（无需 Node.js）
 
-如果项目提供了 `chrome-mv3` 发布压缩包：
+仓库中的 `release/chrome-mv3` 已包含 Chrome 可加载的扩展文件。使用此版本无需安装 Node.js，也无需运行 `npm ci` 或 `npm run build`。
 
-1. 下载并解压压缩包，找到其中包含 `manifest.json` 的 `chrome-mv3` 文件夹。
-2. 在 Chrome 地址栏输入 `chrome://extensions` 并按回车。
+1. 在 GitHub 仓库页面点击 **Code → Download ZIP**，下载并解压项目。
+2. 打开 Chrome，在地址栏输入 `chrome://extensions` 并按回车。
 3. 打开页面右上角的“开发者模式”。
-4. 点击“加载已解压的扩展程序”，选择 `chrome-mv3` 文件夹。
-5. 安装后，建议将 Knowly 固定到 Chrome 工具栏，方便查看扩展选项。
+4. 点击“加载已解压的扩展程序”，选择解压后项目中的 `release/chrome-mv3` 文件夹（该目录内应能看到 `manifest.json`）。
+5. 加载完成后，按“配置模型”章节填写自己的模型平台、API Key 和模型 ID。
 
 ## 安装方式二：从源码构建
 
-1. 安装 Node.js LTS。安装程序通常会一并安装 npm。
-2. 将项目下载到本机并解压，或使用 Git 克隆项目。
-3. 在项目文件夹中打开 PowerShell 或终端，运行：
+如果要从源码自行构建，需要安装 Node.js LTS（安装后会附带 npm）。在项目目录打开 PowerShell 或终端，运行：
 
-   ```powershell
-   npm ci
-   npm run build
-   ```
+```powershell
+npm ci
+npm run build
+```
 
-4. 等待命令完成。构建产物位于 `.output/chrome-mv3`。
-5. 按照上面“安装方式一”的第 2–4 步，在 Chrome 中加载 `.output/chrome-mv3` 文件夹。
-
+构建完成后，在 Chrome 地址栏打开 `chrome://extensions`，开启“开发者模式”，点击“加载已解压的扩展程序”，选择 `.output/chrome-mv3` 文件夹（该目录内应能看到 `manifest.json`）。
 ## 配置模型
 
 1. 打开 `chrome://extensions`。
