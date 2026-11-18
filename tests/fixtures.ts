@@ -26,16 +26,18 @@ export const test = base.extend<{ extensionContext: BrowserContext; background: 
       globalThis.fetch = async (_input, init) => {
         const body = JSON.parse(String(init?.body));
         (globalThis as any).__requests.push(body);
+        const held = (globalThis as any).__holdNext;
+        if (held) { (globalThis as any).__holdNext = false; await new Promise<void>(resolve => { (globalThis as any).__releaseRequest = resolve; }); }
         if ((globalThis as any).__failNext) {
           (globalThis as any).__failNext = false;
           return new Response(JSON.stringify({error:{message:'test failure'}}), {status: 429});
         }
         if (body.stream) {
-          const chunks = ['**这是什么**\n', 'Harness 原意是挽具，也表示利用工具。'];
+          const chunks = ['**这是什么**\n', held ? '旧请求的回答不应覆盖新卡片。' : (globalThis as any).__long ? '初始解释用于检查超长内容的滚动与折叠。'.repeat(200) : 'Harness 原意是挽具，也表示利用工具。'];
           return new Response(chunks.map(content => `data: ${JSON.stringify({choices:[{delta:{content}}]})}\n\n`).join('') + 'data: [DONE]\n\n',
             { headers: { 'Content-Type': 'text/event-stream' } });
         }
-        return new Response(JSON.stringify({ choices: [{ message: { content: '例如，用测试工具组织并运行自动化测试。' } }] }),
+        return new Response(JSON.stringify({ choices: [{ message: { content: (globalThis as any).__answer ?? ((globalThis as any).__long ? '追问回答用于验证阅读区独立滚动，笔记和操作栏不被压缩。'.repeat(200) : '例如，用测试工具组织并运行自动化测试。') } }] }),
           { headers: { 'Content-Type': 'application/json' } });
       };
     });

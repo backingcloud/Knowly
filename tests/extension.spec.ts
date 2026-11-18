@@ -12,7 +12,7 @@ async function select(page: Page, selector: string) {
 async function explain(page: Page, selector = '#term') {
   await select(page, selector);
   await page.getByRole('button', { name: '解释选中文字' }).click();
-  await expect(page.getByRole('button', { name: '复制解释' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '复制初始解释' })).toBeEnabled();
 }
 
 test('real extension injection, selection, bold original sentence, action order and copy', async ({ page }, info) => {
@@ -25,10 +25,10 @@ test('real extension injection, selection, bold original sentence, action order 
   await expect(page.getByText('Harness 原意是挽具，也表示利用工具。', { exact: true })).toBeVisible();
   await expect(page.locator('.topic-context strong')).toHaveText('harness');
   await expect(page.locator('.topic-context strong')).toHaveCSS('font-weight', '700');
-  await expect(page.locator('.action-row-utility button')).toHaveText(['复制解释', '保存 Markdown']);
+  await expect(page.locator('.action-row-utility button')).toHaveText(['复制初始解释', '保存 Markdown']);
   await expect(page.locator('.action-row-main button')).toHaveText(['加入待保存', '加入并继续选词']);
-  await expect(page.locator('.queue-empty-toggle')).toHaveText('待保存清单 0');
-  await page.getByRole('button', { name: '复制解释' }).click();
+  await expect(page.locator('.queue-toggle')).toHaveText('待保存清单 0');
+  await page.getByRole('button', { name: '复制初始解释' }).click();
   await expect(page.locator('.action-status')).toHaveText('解释已复制。');
   await page.screenshot({ path: info.outputPath('knowly-card.png') });
   await page.getByRole('button', { name: '关闭解释' }).click();
@@ -39,9 +39,9 @@ test('context opt-in, follow-up history, note, single save and persisted queue e
   await explain(page);
   const requests = () => background.evaluate(() => (globalThis as any).__requests);
   expect((await requests())[0].messages[1].content).toBe('选中的文字：harness');
-  await page.getByRole('checkbox', { name: '发送原句给 AI' }).check();
-  await expect(page.getByRole('button', { name: '复制解释' })).toBeEnabled();
-  expect((await requests())[1].messages[1].content).toContain('所在句子（仅供理解）');
+  await page.getByRole('checkbox', { name: '下次追问附带原句' }).check();
+  await expect(page.getByRole('button', { name: '复制初始解释' })).toBeEnabled();
+  expect(await requests()).toHaveLength(1);
   await page.getByRole('textbox', { name: '输入追问内容' }).fill('举个工作中的例子');
   await page.getByRole('button', { name: '追问', exact: true }).click();
   await expect(page.locator('.assistant-bubble')).toContainText('例如，用测试工具组织并运行自动化测试。');
@@ -54,7 +54,7 @@ test('context opt-in, follow-up history, note, single save and persisted queue e
   await expect(page.locator('.topic-context strong')).toHaveText('harness');
   await expect(page.locator('.turn').last()).toContainText('再解释一步');
   await expect(page.getByRole('textbox', { name: '输入追问内容' })).toBeInViewport();
-  expect((await requests())[3].messages).toContainEqual({role:'user', content:'举个工作中的例子'});
+  expect((await requests())[2].messages).toContainEqual({role:'user', content:'举个工作中的例子'});
   await page.getByRole('textbox', { name: '我的笔记' }).fill('我的理解：组织工具。');
   const singlePromise = page.waitForEvent('download');
   await page.getByRole('button', { name: '保存 Markdown', exact: true }).click();
@@ -67,7 +67,7 @@ test('context opt-in, follow-up history, note, single save and persisted queue e
   await page.getByRole('button', { name: '加入待保存', exact: true }).click();
   await page.getByRole('textbox', { name: '我的笔记' }).fill('更新后的笔记');
   await page.getByRole('button', { name: '更新待保存', exact: true }).click();
-  await expect(page.locator('.queue-item')).toHaveCount(0);
+  await expect(page.locator('.queue-item')).toHaveCount(1);
   await expect.poll(() => background.evaluate(async () => (await (globalThis as any).chrome.storage.local.get('knowlyPendingCards')).knowlyPendingCards?.[0]?.personalNote)).toBe('更新后的笔记');
   await page.reload();
   await explain(page);
@@ -95,6 +95,15 @@ test('add and continue selection, merge two cards, clear queue', async ({ page }
   const download = await pending;
   const text = await fs.readFile((await download.path())!, 'utf8');
   expect(text).toContain('共 2 张'); expect(text).toContain('## 二、unfamiliar concept');
+  await expect(page.locator('.queue-screen-toolbar')).toContainText('跨网页保留，直到你主动移除或清空。');
+  page.once('dialog', async dialog => {
+    expect(dialog.type()).toBe('confirm');
+    expect(dialog.message()).toContain('2 张学习卡');
+    await dialog.dismiss();
+  });
+  await page.getByRole('button', { name: '清空', exact: true }).click();
+  await expect(page.locator('.queue-item')).toHaveCount(2);
+  page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: '清空', exact: true }).click();
   await expect(page.locator('.queue-item')).toHaveCount(0);
 });
@@ -104,7 +113,7 @@ test('model failure can retry; escape and reselect work', async ({ page, backgro
   await select(page, '#unknown'); await page.getByRole('button', { name: '解释选中文字' }).click();
   await expect(page.getByRole('alert')).toContainText('请求过于频繁');
   await page.getByRole('button', { name: '重试' }).click();
-  await expect(page.getByRole('button', { name: '复制解释' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '复制初始解释' })).toBeEnabled();
   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toHaveCount(0);
   await select(page, '#term'); await expect(page.getByRole('button', { name: '解释选中文字' })).toBeVisible();
 });
@@ -136,9 +145,9 @@ test('nested scroll and small viewport stay usable', async ({ page }) => {
   await expect(page.getByRole('button', { name: '保存 Markdown', exact: true })).toBeInViewport();
 });
 
-test('expanded queue grows naturally and the whole card scrolls on a small viewport', async ({ page, background }) => {
+test('dedicated queue scrolls independently on a small viewport', async ({ page, background }) => {
   await background.evaluate(async () => {
-    const cards = Array.from({ length: 5 }, (_, index) => ({
+    const cards = Array.from({ length: 12 }, (_, index) => ({
       id: `layout-${index}`, term: `term ${index + 1}`,
       explanation: { definition: '测试解释', usage: '', example: '' },
       context: `原句包含 term ${index + 1}`, sourceTitle: 'Test', sourceUrl: 'http://127.0.0.1:4174/',
@@ -151,15 +160,15 @@ test('expanded queue grows naturally and the whole card scrolls on a small viewp
   await select(page, '#term');
   await page.getByRole('button', { name: '解释选中文字' }).click();
   await page.locator('.queue-toggle').click();
-  await expect(page.locator('.queue-item')).toHaveCount(5);
+  await expect(page.locator('.queue-item')).toHaveCount(12);
 
   const card = page.getByRole('dialog');
-  const dimensions = await card.evaluate(el => ({ client: el.clientHeight, scroll: el.scrollHeight }));
+  const dimensions = await page.locator('.queue-screen').evaluate(el => ({ client: el.clientHeight, scroll: el.scrollHeight }));
   expect(dimensions.client).toBeLessThanOrEqual(504);
   expect(dimensions.scroll).toBeGreaterThan(dimensions.client);
   await expect(page.locator('.queue-return')).toContainText('返回「harness」学习卡');
 
-  await card.evaluate(el => el.scrollTo(0, el.scrollHeight));
+  await page.locator('.queue-screen').evaluate(el => el.scrollTo(0, el.scrollHeight));
   await expect(page.locator('.queue-item').last()).toBeInViewport();
   await expect(page.getByRole('button', { name: '合并导出' })).toBeInViewport();
   await page.locator('.queue-return').click();
@@ -169,15 +178,15 @@ test('expanded queue grows naturally and the whole card scrolls on a small viewp
 test('queue summary opens a dedicated view, returns to the same card and has clear row actions', async ({ page }) => {
   await explain(page);
   await page.getByRole('button', { name: '加入待保存', exact: true }).click();
-  const preview = page.getByRole('button', { name: '展开待保存清单，共 1 张' });
+  const preview = page.locator('.queue-toggle');
   await expect(preview).toContainText('待保存清单');
-  await expect(preview).toContainText('harness');
+  await expect(preview).toContainText('1');
   const originalScroll = await page.getByRole('dialog').evaluate(el => el.scrollTop);
   await preview.click();
-  await expect(page.getByRole('heading', { name: '待保存清单' })).toBeVisible();
+  await expect(page.locator('.queue-screen')).toBeVisible();
   await expect(page.locator('.queue-item')).toHaveCount(1);
   const rowBox = await page.locator('.queue-item').first().boundingBox();
-  const updateBox = await page.getByRole('button', { name: '更新 harness' }).boundingBox();
+  const updateBox = await page.getByRole('button', { name: '查看并更新 harness' }).boundingBox();
   const removeBox = await page.getByRole('button', { name: '移除 harness' }).boundingBox();
   expect(updateBox!.x).toBeGreaterThan(rowBox!.x + rowBox!.width / 2);
   expect(removeBox!.x).toBeGreaterThan(updateBox!.x);
@@ -200,10 +209,16 @@ test('edit a pending card and restore the unsaved active keyword with its draft 
     await (globalThis as any).chrome.storage.local.set({ knowlyPendingCards: [card] });
   }, original);
   await page.reload();
+  await background.evaluate(() => { (globalThis as any).__long = true; });
   await explain(page, '#unknown');
+  await background.evaluate(() => { (globalThis as any).__long = false; });
+  await page.locator('.answer-toggle').first().click();
   await page.getByRole('textbox', { name: '我的笔记' }).fill('新关键词笔记草稿');
+  await page.getByRole('textbox', { name: '输入追问内容' }).fill('原卡片未发送的问题');
+  await page.getByRole('checkbox', { name: '下次追问附带原句' }).check();
+  await page.locator('.content').evaluate(el => el.scrollTop = 45);
   await page.locator('.queue-toggle').click();
-  await page.getByRole('button', { name: '更新 harness' }).click();
+  await page.getByRole('button', { name: '查看并更新 harness' }).click();
 
   await expect(page.getByRole('heading', { name: 'harness' })).toBeVisible();
   await page.locator('.initial-explanation summary').click();
@@ -227,11 +242,14 @@ test('edit a pending card and restore the unsaved active keyword with its draft 
     ],
   });
   await expect(page.getByRole('heading', { name: 'harness' })).toBeVisible();
-  const returnOriginal = page.getByRole('button', { name: '返回原学习卡「unfamiliar concept」' });
+  const returnOriginal = page.getByRole('button', { name: '返回「unfamiliar concept」学习卡' });
   await expect(returnOriginal).toBeVisible();
   await returnOriginal.click();
   await expect(page.getByRole('heading', { name: 'unfamiliar concept' })).toBeVisible();
   await expect(page.getByRole('textbox', { name: '我的笔记' })).toHaveValue('新关键词笔记草稿');
+  await expect(page.getByRole('textbox', { name: '输入追问内容' })).toHaveValue('原卡片未发送的问题');
+  await expect(page.getByRole('checkbox', { name: '下次追问附带原句' })).toBeChecked();
+  expect(await page.locator('.content').evaluate(el => el.scrollTop)).toBe(45);
   await expect(page.getByRole('button', { name: '加入待保存', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: '加入待保存', exact: true }).click();
   await expect.poll(() => background.evaluate(async () => (await (globalThis as any).chrome.storage.local.get('knowlyPendingCards')).knowlyPendingCards)).toHaveLength(2);

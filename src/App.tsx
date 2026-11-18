@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { browser } from 'wxt/browser';
 import { anchorRect, readPick, type Pick } from './selection';
-import { PENDING_CARDS_KEY, remoteExplanationProvider, type Explanation, type FollowUp } from './services/explanation';
+import { PENDING_CARDS_KEY, SETTINGS_KEY, PROVIDERS, remoteExplanationProvider, type KnowlySettings, type Explanation, type FollowUp } from './services/explanation';
+import { ActionIcon, Appearance, paletteStyle, usePalette } from './CafeTheme';
 import { downloadMarkdown, type LearningCard } from './services/cards';
 import { copyText } from './platform/browser';
 
@@ -12,6 +13,9 @@ type ActiveCardSnapshot = {
   note: string;
   contextEnabled: boolean;
   question: string;
+  scroll: number;
+  initialExpanded: boolean;
+  expansions: Map<string, boolean>;
 };
 
 function makeCard(pick: Pick, explanation: Explanation, context: string | undefined, personalNote: string, followUps: FollowUp[]): LearningCard {
@@ -49,9 +53,23 @@ function highlightSelection(sentence: string, term: string) {
   );
 }
 
-function FormattedAnswer({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const isLong = text.length > 180;
+function FormattedAnswer({ text, resetKey = 0, expansionStore }: { text: string; resetKey?: number; expansionStore?: Map<string, boolean> }) {
+  const [expanded, setExpanded] = useState(() => expansionStore?.get(text) ?? false);
+  const [isLong, setIsLong] = useState(false);
+  const body = useRef<HTMLDivElement>(null);
+  const readingPosition = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const reading = body.current?.closest('.content');
+    if (reading && readingPosition.current !== null) { reading.scrollTop = readingPosition.current; readingPosition.current = null; }
+  }, [expanded]);
+  useLayoutEffect(() => setExpanded(expansionStore?.get(text) ?? false), [resetKey, text, expansionStore]);
+  useLayoutEffect(() => {
+    const element = body.current;
+    if (!element) return;
+    const measure = () => setIsLong(element.scrollHeight > 192);
+    measure(); const observer = new ResizeObserver(measure); observer.observe(element);
+    return () => observer.disconnect();
+  }, [text]);
   const normalized = text
     .replace(/\r/g, '')
     .replace(/\s+-\s+(?=\*\*)/g, '\n- ')
@@ -64,23 +82,34 @@ function FormattedAnswer({ text }: { text: string }) {
     const line = raw.trim();
     if (!line) { flush(); continue; }
     const heading = line.match(/^#{1,4}\s+(.*)$/);
-    if (heading) { flush(); blocks.push({ type: 'h', text: heading[1] }); continue; }
+    if (heading) { flush(); blocks.push({ type: 'h', text: heading[1]! }); continue; }
     const item = line.match(/^(?:[-*•]|(\d+)[.)])\s+(.*)$/);
-    if (item) { flush(); blocks.push({ type: 'li', text: item[2], ordered: Boolean(item[1]) }); continue; }
+    if (item) { flush(); blocks.push({ type: 'li', text: item[2]!, ordered: Boolean(item[1]) }); continue; }
     paragraph.push(line);
   }
   flush();
-  return <>
-    <div className={`formatted-answer${isLong && !expanded ? ' answer-collapsed' : ''}`}>{blocks.map((block, index) => {
+  return <div className="answer-section">
+    <div ref={body} className={`formatted-answer${isLong && !expanded ? ' answer-collapsed' : ''}`}>{blocks.map((block, index) => {
     if (block.type === 'h') return <h4 key={index}>{renderInline(block.text.replace(/\*\*/g, ''))}</h4>;
     if (block.type === 'li') return <div className="answer-list-item" key={index}><span className="list-marker">{block.ordered ? '•' : '•'}</span><span>{renderInline(block.text)}</span></div>;
     return <p key={index}>{renderInline(block.text)}</p>;
     })}</div>
-    {isLong && <button type="button" className="answer-toggle" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{expanded ? '收起回答' : '展开完整回答'}</button>}
-  </>;
+    {isLong && <button type="button" className="answer-toggle" aria-expanded={expanded} onClick={() => {
+      const reading = body.current?.closest('.content');
+      if (reading && body.current) {
+        const offset = body.current.getBoundingClientRect().top - reading.getBoundingClientRect().top;
+        readingPosition.current = expanded && offset < 0 ? Math.max(0, reading.scrollTop + offset - 8) : reading.scrollTop;
+      }
+      expansionStore?.set(text, !expanded); setExpanded(!expanded);
+    }}><span>{expanded ? '收起回答' : '展开全文'}</span><span aria-hidden="true">{expanded ? '⌃' : '⌄'}</span></button>}
+  </div>;
 }
 
 export function App() {
+  const [palette, setPalette] = usePalette();
+  const [settings, setSettings] = useState<{ provider: KnowlySettings['provider']; model?: string } | null>(null);
+  const [foldReset, setFoldReset] = useState(0);
+  const answerExpansions = useRef(new Map<string, boolean>());
   const [pick, setPick] = useState<Pick | null>(null);
   const [open, setOpen] = useState(false);
   const [result, setResult] = useState<Explanation | null>(null);
@@ -93,6 +122,7 @@ export function App() {
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [initialExplanationExpanded, setInitialExplanationExpanded] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+  const [pendingContext, setPendingContext] = useState<string | undefined>();
   const [question, setQuestion] = useState('');
   const [note, setNote] = useState('');
   const [pending, setPending] = useState<LearningCard[]>([]);
@@ -102,6 +132,7 @@ export function App() {
   const [status, setStatus] = useState('');
   const [loaded, setLoaded] = useState(false);
   const retryAction = useRef<() => void>(() => {});
+  const requestVersion = useRef(0);
   const skipNextExplain = useRef(false);
   const previousCard = useRef<ActiveCardSnapshot | null>(null);
   const [position, setPosition] = useState({ left: 0, top: 0, visible: false });
@@ -115,16 +146,26 @@ export function App() {
   const latestTurnRef = useRef<HTMLDivElement>(null);
   const topbarRef = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const read = (value?: KnowlySettings) => {
+      const provider = value?.provider && PROVIDERS[value.provider] ? value.provider : 'deepseek';
+      setSettings({ provider, model: value?.credentials?.[provider]?.model || (provider === 'deepseek' ? value?.deepseekModel : '') || PROVIDERS[provider].defaultModel });
+    };
+    void browser.storage.local.get(SETTINGS_KEY).then(value => read(value[SETTINGS_KEY] as KnowlySettings));
+    const listener: Parameters<typeof browser.storage.onChanged.addListener>[0] = (changes, area) => { if (area === 'local' && changes[SETTINGS_KEY]) read(changes[SETTINGS_KEY].newValue as KnowlySettings); };
+    browser.storage.onChanged.addListener(listener);
+    return () => browser.storage.onChanged.removeListener(listener);
+  }, []);
 
   useEffect(() => { browser.storage.local.get(PENDING_CARDS_KEY).then(value => {
     const cards = ((value as Record<string, LearningCard[]>)[PENDING_CARDS_KEY]) ?? [];
     setPending(cards); setLoaded(true);
   }); }, []);
   useEffect(() => { if (loaded) void browser.storage.local.set({ [PENDING_CARDS_KEY]: pending }); }, [pending, loaded]);
-  useEffect(() => { setContextExpanded(false); setTermExpanded(false); setInitialExplanationExpanded(false); }, [pick?.term, pick?.context]);
-  const close = () => { setOpen(false); setPick(null); setQueueOpen(false); setEditingQueuedId(null); previousCard.current = null; };
+  useEffect(() => { setContextExpanded(false); setTermExpanded(false); }, [pick?.term, pick?.context]);
+  const close = () => { requestVersion.current++; setBusy(false); setOpen(false); setPick(null); setQueueOpen(false); setEditingQueuedId(null); previousCard.current = null; };
   const openQueueView = () => {
-    cardScrollTop.current = cardRef.current?.scrollTop ?? 0;
+    cardScrollTop.current = contentRef.current?.scrollTop ?? 0;
     setQueueOpen(true);
   };
   const restorePreviousCard = (updated: boolean) => {
@@ -135,6 +176,9 @@ export function App() {
     setPick(previous.pick); setResult(previous.result); setStreamingText('');
     setFollowUps(previous.followUps); setNote(previous.note); setContextEnabled(previous.contextEnabled);
     setQuestion(previous.question); setPendingQuestion(null); setError('');
+    answerExpansions.current = previous.expansions;
+    cardScrollTop.current = previous.scroll;
+    setInitialExplanationExpanded(previous.initialExpanded);
     setEditingQueuedId(null); setQueueOpen(false); setOpen(true);
     setStatus(updated ? '已更新待保存卡片，已返回当前关键词。' : '已返回刚才的学习卡。');
     return true;
@@ -169,7 +213,7 @@ export function App() {
     const start = cardResizeStart.current;
     if (!start || !panel.current) return;
     const minWidth = Math.min(320, innerWidth - 16);
-    const minHeight = Math.min(400, innerHeight - 16);
+    const minHeight = Math.min(560, innerHeight - 16);
     const width = Math.max(minWidth, Math.min(innerWidth - 16, start.width + event.clientX - start.pointerX));
     const height = Math.max(minHeight, Math.min(innerHeight - 16, start.height + event.clientY - start.pointerY));
     setCardSize({ width, height });
@@ -199,7 +243,7 @@ export function App() {
         setPick(next); setDragOffset({ x: 0, y: 0 }); setOpen(false); setResult(null); setFollowUps([]); setPendingQuestion(null); setQuestion(''); setNote(''); setContextEnabled(false); setError(''); setStatus(''); setEditingQueuedId(null);
       });
     };
-    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { cancelAnimationFrame(frame); setOpen(false); setPick(null); } };
+    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { cancelAnimationFrame(frame); close(); } };
     document.addEventListener('pointerup', update); document.addEventListener('keyup', update); document.addEventListener('keydown', escape);
     return () => { cancelAnimationFrame(frame); document.removeEventListener('pointerup', update); document.removeEventListener('keyup', update); document.removeEventListener('keydown', escape); };
   }, [open]);
@@ -224,30 +268,34 @@ export function App() {
   }, [pick, open, result, error, followUps.length, queueOpen]);
 
   useLayoutEffect(() => {
-    const container = cardRef.current;
+    const container = contentRef.current;
     const target = latestTurnRef.current;
     if (!container || !target) return;
     const containerRect = container.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
-    const topbarHeight = topbarRef.current?.offsetHeight ?? 0;
-    const top = container.scrollTop + targetRect.top - containerRect.top - topbarHeight - 10;
-    container.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-  }, [pendingQuestion, followUps.length]);
+    if (!pendingQuestion) return;
+    const top = container.scrollTop + targetRect.top - containerRect.top - 10;
+    container.scrollTo({ top: Math.max(0, top) });
+  }, [pendingQuestion]);
   useLayoutEffect(() => {
-    if (!queueOpen && !editingQueuedId && cardScrollTop.current !== null && cardRef.current) {
-      cardRef.current.scrollTop = cardScrollTop.current;
+    if (!queueOpen && !editingQueuedId && cardScrollTop.current !== null && contentRef.current) {
+      contentRef.current.scrollTop = cardScrollTop.current;
       cardScrollTop.current = null;
     }
   }, [queueOpen, editingQueuedId]);
-  useLayoutEffect(() => { if (contentRef.current) contentRef.current.scrollTop = 0; }, [pick?.term, pick?.context]);
+  useLayoutEffect(() => { if (contentRef.current && cardScrollTop.current === null && !skipNextExplain.current) contentRef.current.scrollTop = 0; }, [pick?.term, pick?.context]);
 
   const explain = async (withContext = contextEnabled) => {
     if (!pick) return;
+    const version = ++requestVersion.current;
     retryAction.current = () => { void explain(withContext); };
     setBusy(true); setError(''); setResult(null); setStreamingText(''); setFollowUps([]); setPendingQuestion(null); setStatus('');
-    try { setResult(await remoteExplanationProvider.explain(pick.term, withContext ? pick.context : undefined, chunk => setStreamingText(value => value + chunk))); }
-    catch (e) { setError(e instanceof Error ? e.message : '解释失败，请重试。'); }
-    finally { setBusy(false); }
+    try {
+      const explanation = await remoteExplanationProvider.explain(pick.term, withContext ? pick.context : undefined, chunk => { if (version === requestVersion.current) setStreamingText(value => value + chunk); });
+      if (version === requestVersion.current) setResult(explanation);
+    }
+    catch (e) { if (version === requestVersion.current) setError(e instanceof Error ? e.message : '解释失败，请重试。'); }
+    finally { if (version === requestVersion.current) setBusy(false); }
   };
   useEffect(() => {
     if (!open || !pick) return;
@@ -258,17 +306,22 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, pick]);
 
-  const toggleContext = async (enabled: boolean) => { setContextEnabled(enabled); await explain(enabled); };
+  const toggleContext = (enabled: boolean) => { setContextEnabled(enabled); };
   const runFollowUp = async (asked: string) => {
     if (!pick || !result || !asked.trim() || busy) return;
+    const version = ++requestVersion.current;
+    answerExpansions.current.clear(); setFoldReset(value => value + 1); setInitialExplanationExpanded(false);
+    const contextSent = contextEnabled ? pick.context : undefined;
+    setPendingContext(contextSent);
     setQuestion(''); setPendingQuestion(asked); setBusy(true); setError(''); setStatus('');
     retryAction.current = () => { void runFollowUp(asked); };
     try {
-      const answer = await remoteExplanationProvider.followUp(pick.term, contextEnabled ? pick.context : undefined, result, followUps, asked);
-      setFollowUps(value => [...value, { question: asked, answer }]);
+      const answer = await remoteExplanationProvider.followUp(pick.term, contextSent, result, followUps, asked);
+      if (version !== requestVersion.current) return;
+      setFollowUps(value => [...value, { question: asked, answer, ...(contextSent ? { contextSent } : {}) }]);
       setPendingQuestion(null);
-    } catch (e) { setPendingQuestion(null); setQuestion(asked); setError(e instanceof Error ? e.message : '追问失败，请重试。'); }
-    finally { setBusy(false); }
+    } catch (e) { if (version === requestVersion.current) { setPendingQuestion(null); setQuestion(asked); setError(e instanceof Error ? e.message : '追问失败，请重试。'); } }
+    finally { if (version === requestVersion.current) setBusy(false); }
   };
   const askFollowUp = (event: React.FormEvent) => { event.preventDefault(); if (question.trim()) void runFollowUp(question.trim()); };
   const returnToQueue = () => setQueueOpen(true);
@@ -276,13 +329,16 @@ export function App() {
     if (!pick) return;
     if (!previousCard.current && result) previousCard.current = {
       pick, result, followUps: [...followUps], note, contextEnabled, question,
+      scroll: cardScrollTop.current ?? contentRef.current?.scrollTop ?? 0, initialExpanded: initialExplanationExpanded,
+      expansions: answerExpansions.current,
     };
+    answerExpansions.current = new Map();
     skipNextExplain.current = true;
     setEditingQueuedId(card.id);
     setPick({ term: card.term, context: card.context, range: pick.range });
     setResult(card.explanation); setStreamingText(''); setFollowUps(card.followUps ?? []);
     setPendingQuestion(null); setQuestion(''); setNote(card.personalNote ?? '');
-    setContextEnabled(false); setError(''); setStatus('正在编辑待保存卡片。');
+    setContextEnabled(false); setError(''); setStatus('可查看内容；修改后点击“更新待保存”保存。');
     setOpen(true); setQueueOpen(false); setInitialExplanationExpanded(false);
   };
   const currentCard = (existing?: LearningCard) => {
@@ -354,57 +410,56 @@ export function App() {
   if (!pick) return null;
   const returnCardTerm = previousCard.current?.pick.term ?? pick.term;
   const alreadyQueued = Boolean(editingQueuedId || (result && pending.some(card => matchesQueuedCard(card, pick.term, location.href, pick.context))));
-  const providerLabel = result?.provider ? (result.provider === 'zhipu' ? '智谱 GLM' : result.provider === 'doubao' ? '豆包' : 'DeepSeek') : 'AI 模型';
+  const providerLabel = settings ? PROVIDERS[settings.provider].label : 'AI 模型';
   return <div ref={panel} className="floating" style={{ left: position.left + dragOffset.x, top: position.top + dragOffset.y, visibility: position.visible ? 'visible' : 'hidden' }}>
     {!open ? <button className="trigger" onPointerDown={e => e.preventDefault()} onClick={() => { setOpen(true); setQueueOpen(false); }} aria-label="解释选中文字">解释</button> :
-      <section ref={cardRef} className={`card${queueOpen ? ' queue-expanded' : ''}`} style={cardSize ? { width: cardSize.width, height: cardSize.height } : undefined} role="dialog" aria-modal="false" aria-labelledby="knowly-title">
+      <section ref={cardRef} data-palette={palette} className={`card${queueOpen ? ' queue-expanded' : ''}`} style={{ ...paletteStyle(palette), ...(cardSize ? { width: cardSize.width, height: cardSize.height } : {}) }} role="dialog" aria-modal="false" aria-label={queueOpen ? '待保存清单' : undefined} aria-labelledby={queueOpen ? undefined : 'knowly-title'}>
         <div className="card-topbar" ref={topbarRef}>
         <header className="card-header" onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={stopDrag} onPointerCancel={stopDrag}>
-          <span className="brand">✦ Knowly</span><span className="badge">{providerLabel}</span><span className="drag-hint">拖动</span><button ref={closeButton} className="close" onClick={close} aria-label="关闭解释">×</button>
+          <span className="brand">✦ Knowly</span><span className="badge" title={`后续请求使用：${providerLabel}${settings?.model ? ` · ${settings.model}` : ''}`}>{providerLabel}</span><span className="drag-hint">拖动</span><Appearance palette={palette} onChange={setPalette} /><button ref={closeButton} className="close" onClick={close} aria-label="关闭解释">×</button>
         </header>
-        <section className="topic-header" aria-label="当前学习内容">
+        <nav className="view-tabs" aria-label="学习卡页面"><button type="button" aria-pressed={!queueOpen} onClick={() => setQueueOpen(false)}>学习卡</button><button type="button" className="queue-toggle" aria-pressed={queueOpen} onClick={openQueueView}>待保存清单 <span>{pending.length}</span></button>{(queueOpen || previousCard.current) && <button type="button" className="queue-return" disabled={busy} title={`返回最初选择的「${returnCardTerm}」学习卡，保留笔记和阅读位置`} onClick={returnToCard}>返回「{returnCardTerm}」学习卡</button>}</nav>
+        <section className="topic-header" aria-label="当前学习内容" hidden={queueOpen}>
+          {editingQueuedId && <div className="update-kicker">查看学习卡「{pick.term}」</div>}
           <div className={`topic-title-row${termExpanded ? ' is-expanded' : ''}`}><h2 id="knowly-title">{pick.term}</h2>{pick.term.length > 42 && <button type="button" onClick={() => setTermExpanded(value => !value)}>{termExpanded ? '收起' : '展开'}</button>}</div>
           {pick.context && <div className={`topic-context${contextExpanded ? ' is-expanded' : ''}`}><span>原句</span><p title={pick.context}>{highlightSelection(pick.context, pick.term)}</p>{pick.context.length > 72 && <button type="button" onClick={() => setContextExpanded(value => !value)}>{contextExpanded ? '收起' : '展开'}</button>}</div>}
-          {pick.context && <label className="context-toggle"><input type="checkbox" checked={contextEnabled} onChange={event => void toggleContext(event.target.checked)} />发送原句给 AI <span>可选</span></label>}
+          {pick.context && <label className="context-toggle" title="仅影响之后的追问请求，不重新生成已有解释或清空追问。取消勾选后，后续请求不再附带原句。"><input type="checkbox" checked={contextEnabled} onChange={event => toggleContext(event.target.checked)} />下次追问附带原句</label>}
+          <div className="cat-buddy"><img src={browser.runtime.getURL('/cat-study-mascot.png')} alt="趴在书本上学习的小猫" /><span><b>小橘的自习时间</b><small>今天也学一点点 ✦</small></span></div>
         </section>
         </div>
-        {queueOpen ? <div className="queue-screen" aria-label="待保存清单">
-          <div className="queue-screen-heading"><div><h2>待保存清单</h2><span>{pending.length} 张学习卡</span></div><button className="queue-return" onClick={returnToCard}>返回「{returnCardTerm}」学习卡</button></div>
-          <div className="queue-screen-toolbar"><button className="queue-export" disabled={!pending.length} onClick={exportAll}>合并导出</button><button className="queue-clear" disabled={!pending.length} onClick={() => setPending([])}>清空</button></div>
+        <div className="queue-screen" aria-label="待保存清单" hidden={!queueOpen}>
+          <div className="queue-screen-toolbar"><span>跨网页保留，直到你主动移除或清空。</span><button className="queue-export" title="导出清单内所有卡片的解释、追问和笔记" disabled={!pending.length} onClick={exportAll}>合并导出</button><button className="queue-clear" disabled={!pending.length || busy} onClick={() => { if (window.confirm(`确定清空待保存清单中的 ${pending.length} 张学习卡吗？此操作无法撤销。如需保留，请先合并导出并确认文件无误。`)) setPending([]); }}>清空</button></div>
           <div className="queue-list">
-            {!pending.length ? <p className="queue-empty">清单为空。返回学习卡后可加入新卡片。</p> : pending.map(card => <div className="queue-item" key={card.id}><span className="queue-term">{card.term}<small>{new URL(card.sourceUrl).hostname}</small></span><div className="queue-item-actions"><button className="queue-edit" aria-label={`更新 ${card.term}`} onClick={() => editQueuedCard(card)}>更新</button><button className="queue-remove" aria-label={`移除 ${card.term}`} onClick={() => setPending(items => items.filter(item => item.id !== card.id))}>移除</button></div></div>)}
+            {!pending.length ? <p className="queue-empty">清单为空。返回学习卡后可加入新卡片。</p> : pending.map(card => <div className="queue-item" key={card.id}><span className="queue-term">{card.term}<small>{new URL(card.sourceUrl).hostname}</small></span><div className="queue-item-actions"><button disabled={busy} className="queue-edit" aria-label={`查看并更新 ${card.term}`} title="打开查看；修改后点击更新待保存才会写入清单" onClick={() => editQueuedCard(card)}>查看并更新</button><button disabled={busy} className="queue-remove" aria-label={`移除 ${card.term}`} onClick={() => setPending(items => items.filter(item => item.id !== card.id))}>移除</button></div></div>)}
           </div>
           <small className="queue-note">返回学习卡会恢复刚才的追问位置。导出后清单会保留。</small>
-        </div> : <>
+        </div>
+        <div className="card-body" hidden={queueOpen}>
         <div ref={contentRef} className="content">
-          {editingQueuedId && <div className="editing-banner"><span>正在编辑待保存卡片</span><div className="editing-banner-actions">{previousCard.current && <button className="return-original" type="button" onClick={() => restorePreviousCard(false)}>返回原学习卡「{previousCard.current.pick.term}」</button>}<button type="button" onClick={returnToQueue}>返回待保存清单</button></div></div>}
-          <p className="eyebrow">把好奇，变成理解</p>
+
           {busy && <p role="status">模型正在生成，内容会逐步显示…</p>}
           {error && <div className="error" role="alert"><p>{error}</p><button onClick={() => retryAction.current()}>重试</button></div>}
-          {streamingText && !result && <><h3>通俗解释</h3><FormattedAnswer text={streamingText} /></>}
+          {streamingText && !result && <><h3>通俗解释</h3><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={streamingText} /></>}
           {result && <>
             {followUps.length > 0 ? <details className="initial-explanation" open={initialExplanationExpanded} onToggle={event => setInitialExplanationExpanded(event.currentTarget.open)}>
               <summary>{initialExplanationExpanded ? '收起初始解释' : '查看初始解释'}</summary>
-              <h3>通俗解释</h3><FormattedAnswer text={result.definition} />{result.usage && <><h3>用途</h3><FormattedAnswer text={result.usage} /></>}{result.example && <><h3>举个例子</h3><FormattedAnswer text={result.example} /></>}
-            </details> : <><h3>通俗解释</h3><FormattedAnswer text={result.definition} />{result.usage && <><h3>用途</h3><FormattedAnswer text={result.usage} /></>}{result.example && <><h3>举个例子</h3><FormattedAnswer text={result.example} /></>}</>}
+              <h3>通俗解释</h3><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={result.definition} />{result.usage && <><h3>用途</h3><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={result.usage} /></>}{result.example && <><h3>举个例子</h3><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={result.example} /></>}
+            </details> : <><h3>通俗解释</h3><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={result.definition} />{result.usage && <><h3>用途</h3><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={result.usage} /></>}{result.example && <><h3>举个例子</h3><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={result.example} /></>}</>}
             {followUps.map((turn, index) => <div className="turn" key={`${index}-${turn.question}`} ref={index === followUps.length - 1 && !pendingQuestion ? latestTurnRef : undefined}>
-              <div className="user-bubble"><span>你</span><p>{turn.question}</p></div>
-              <div className="assistant-bubble"><span>Knowly</span><FormattedAnswer text={turn.answer} /></div>
+              <div className="user-bubble"><span>你</span><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={turn.question} />{turn.contextSent && <details className="sent-context"><summary>已附带原句 · 查看</summary><p>{turn.contextSent}</p></details>}</div>
+              <div className="assistant-bubble"><span>Knowly</span><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={turn.answer} /></div>
             </div>)}
-            {pendingQuestion && <div className="turn pending-turn" ref={latestTurnRef}><div className="user-bubble"><span>你</span><p>{pendingQuestion}</p></div><div className="assistant-bubble"><span>Knowly</span><p role="status">正在生成回答…</p></div></div>}
+            {pendingQuestion && <div className="turn pending-turn" ref={latestTurnRef}><div className="user-bubble"><span>你</span><FormattedAnswer expansionStore={answerExpansions.current} resetKey={foldReset} text={pendingQuestion} />{pendingContext && <details className="sent-context"><summary>本次请求附带原句 · 查看</summary><p>{pendingContext}</p></details>}</div><div className="assistant-bubble"><span>Knowly</span><p role="status">正在生成回答…</p></div></div>}
           </>}
         </div>
-        {result && <div className="follow-composer"><label className="follow-label" htmlFor="follow-up-question">继续追问</label><form className="follow-form" onSubmit={askFollowUp}><input id="follow-up-question" value={question} onChange={event => setQuestion(event.target.value)} placeholder="输入你想继续了解的问题" aria-label="输入追问内容" /><button disabled={busy || !question.trim()}>追问</button></form></div>}
+        {result && <div className="follow-composer"><label className="follow-label" htmlFor="follow-up-question">继续追问</label>{contextEnabled && pick.context && <p className="context-send-hint">本次追问将附带上方原句，不会重新解释。</p>}<form className="follow-form" onSubmit={askFollowUp}><input id="follow-up-question" value={question} onChange={event => setQuestion(event.target.value)} placeholder="输入你想继续了解的问题" aria-label="输入追问内容" /><button disabled={busy || !question.trim()}>追问</button></form></div>}
         {result && <section className="note-panel"><label className="note-label" htmlFor="personal-note">我的笔记</label><textarea id="personal-note" value={note} onChange={event => setNote(event.target.value)} placeholder="记下自己的理解或补充…" rows={2} /></section>}
         <footer className="card-actions">
-          <div className="action-row action-row-utility"><button className="action-copy" disabled={!result} onClick={copy}>复制解释</button><button className="action-secondary" disabled={!result} onClick={saveOne}>保存 Markdown</button></div>
-          <div className="action-row action-row-main"><button className="action-primary" disabled={!result} onClick={addToQueue}>{alreadyQueued ? '更新待保存' : '加入待保存'}</button><button className="action-continue" disabled={!result} onClick={addAndContinue}>{alreadyQueued ? '更新并继续选词' : '加入并继续选词'}</button></div>
-          {pending.length > 0 ? <button className="queue-toggle queue-preview" aria-expanded={false} onClick={openQueueView} title={pending.map(card => card.term).join('、')} aria-label={`展开待保存清单，共 ${pending.length} 张`}>
-            <span className="queue-preview-label">待保存清单</span><span className="queue-preview-terms">{pending.slice(0, 2).map(card => card.term).join('、')}{pending.length > 2 ? ` 等 ${pending.length} 张` : ` · ${pending.length} 张`}</span><span className="queue-preview-open">打开清单&nbsp; ›</span>
-          </button> : <button className="queue-toggle queue-empty-toggle" aria-expanded={false} onClick={openQueueView}>待保存清单 <span>0</span></button>}
-          <span className="action-status" role="status">{status || (result ? '解释、笔记和追问可加入学习卡片' : '仅发送所选文字')}</span>
+          <div className="action-row action-row-utility"><button title="仅复制完整的初始解释，不包含追问和笔记" className="action-copy" disabled={!result} onClick={copy}><ActionIcon name="copy" /><span>复制初始解释</span></button><button title="下载 Markdown：包含初始解释、全部追问和我的笔记" className="action-secondary" disabled={!result || busy} onClick={saveOne}><ActionIcon name="download" /><span>保存 Markdown</span></button></div>
+          <div className="action-row action-row-main"><button title="保存初始解释、全部追问和我的笔记到待保存清单" className="action-primary" disabled={!result || busy} onClick={addToQueue}><ActionIcon name={alreadyQueued ? 'update' : 'save'} /><span>{alreadyQueued ? '更新待保存' : '加入待保存'}</span></button><button title="保存解释、全部追问和笔记，然后关闭弹窗继续在网页选词" className="action-continue" disabled={!result || busy} onClick={addAndContinue}><ActionIcon name="next" /><span>{alreadyQueued ? '更新并继续选词' : '加入并继续选词'}</span></button></div>
+          <span className="action-status" role="status">{status || (result ? '解释、笔记和追问会一起保存' : '仅发送所选文字')}</span>
         </footer>
-        </>}
+        </div>
         <div className="card-resize" role="group" aria-label="拖动调整卡片大小" title="拖动调整卡片大小" onPointerDown={startCardResize} onPointerMove={moveCardResize} onPointerUp={stopCardResize} onPointerCancel={stopCardResize}><span /></div>
       </section>}
   </div>;

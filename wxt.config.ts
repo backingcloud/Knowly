@@ -5,6 +5,7 @@ export default defineConfig({
     name: 'Knowly · AI 伴学',
     description: '划词后就地查看概念解释。',
     permissions: ['clipboardWrite', 'storage'],
+    web_accessible_resources: [{ resources: ['cat-study-mascot.png'], matches: ['http://*/*', 'https://*/*'] }],
     host_permissions: [
       'https://api.deepseek.com/*',
       'https://open.bigmodel.cn/*',

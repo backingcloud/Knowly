@@ -10,6 +10,8 @@ export interface Explanation {
 export interface FollowUp {
   question: string;
   answer: string;
+  /** Exact original sentence attached to this request; absent on older cards. */
+  contextSent?: string;
 }
 
 export type ProviderId = 'deepseek' | 'zhipu' | 'doubao';

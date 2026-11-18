@@ -22,70 +22,292 @@
 .actions{display:flex;flex-direction:column;gap:0;padding:10px 14px 8px;background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface2) 34%,var(--surface)))}.main-actions{display:flex;width:100%;gap:8px}.main-actions button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 10px;border-radius:10px;font-size:11px;font-weight:650}.main-actions .save{flex:1.1;box-shadow:0 3px 8px color-mix(in srgb,var(--accent) 18%,transparent)}.main-actions .continue{flex:.9;background:var(--surface2);border-color:color-mix(in srgb,var(--accent) 24%,var(--line));color:var(--accent)}.action-icon{font-size:15px;line-height:1}.action-arrow{font-size:13px;margin-left:2px}.status{display:flex;align-items:center;align-self:flex-start;gap:6px;padding:7px 2px 8px;color:var(--muted);font-size:9px;text-align:left}.status-check{display:inline-grid;place-items:center;width:14px;height:14px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:9px;font-weight:700}.utility{display:flex;width:100%;gap:8px;padding-top:7px;border-top:1px solid var(--line)}.utility button{display:inline-flex;align-items:center;gap:6px;min-height:31px;padding:6px 10px;border-radius:8px;font-weight:600}.tool-icon{font-size:12px;line-height:1}
 .status{order:1}.utility{order:2}
 
-.floating-preview[data-style="annotation"]{--accent:#345d49;--accent-soft:#e8eee5;--text:#283b32;--muted:#748078;--line:#e2e6dd;--surface:#fffdf7;--surface2:#f6f5ed;--focus:#91b29b;background:#fffdf7;border-color:#dfe4d8;border-radius:15px;box-shadow:0 18px 48px #293c3024}
-.floating-preview[data-style="annotation"] .card-header{background:#fffdf7;border-bottom-color:#e7e8df}
-.floating-preview[data-style="annotation"] .brand{color:#2f5944}
-.floating-preview[data-style="annotation"] .model{background:#edf1e9;color:#58705f}
-.floating-preview[data-style="annotation"] .topic-header{padding:13px 17px 12px;background:#faf8f0;border-bottom:1px solid #e8e5d9}
-.floating-preview[data-style="annotation"] .topic-title-row h2{font-family:Georgia,"Songti SC",serif;font-size:22px;letter-spacing:-.025em;color:#2b4336}
-.floating-preview[data-style="annotation"] .topic-sub{margin-top:4px;font-size:10px;color:#758077}
-.floating-preview[data-style="annotation"] .tag{background:#e9eee5;color:#536c59}
-.floating-preview[data-style="annotation"] .original{display:block;margin-top:10px;padding:8px 10px;border-left:2px solid #9daf8c;border-radius:0 7px 7px 0;background:#f1f0e6;color:#59655a;font-size:11px;line-height:1.55;-webkit-line-clamp:unset}
-.floating-preview[data-style="annotation"] .original b{color:#2f5944;font-weight:700}
-.floating-preview[data-style="annotation"] .context{margin-top:7px;color:#758077}
-.floating-preview[data-style="annotation"] .cat-buddy{display:none}
-.floating-preview[data-style="annotation"] .content{padding:14px 18px 12px;background:#fffdf7;scrollbar-color:#cbd3c7 transparent}
-.floating-preview[data-style="annotation"] .eyebrow{font-family:Georgia,"Songti SC",serif;font-size:13px;color:#345d49;letter-spacing:.02em}
-.floating-preview[data-style="annotation"] .answer-block h3{margin:12px 0 3px;color:#345d49;font-family:Georgia,"Songti SC",serif;font-size:13px}
-.floating-preview[data-style="annotation"] .answer-block p{color:#435248;font-size:12px;line-height:1.78}
-.floating-preview[data-style="annotation"] .answer-block strong{color:#263f32}
-.floating-preview[data-style="annotation"] .thread-label{display:flex;align-items:center;gap:8px;margin:14px 0 5px;padding-top:9px;border-top:1px solid #e8e8df;color:#52685a;font-size:10px}
-.floating-preview[data-style="annotation"] .thread-label::before{content:"";height:1px;flex:1;background:#e8e8df}
-.floating-preview[data-style="annotation"] .thread-label strong{font-weight:650}
-.floating-preview[data-style="annotation"] .thread-label span{color:#879187}
-.floating-preview[data-style="annotation"] .turn{max-width:none;margin:8px 0 5px;padding:7px 10px;border-left:2px solid #c5cfbd;border-radius:0;background:#f7f6ef;color:#435248;font-size:11px}
-.floating-preview[data-style="annotation"] .turn small,.floating-preview[data-style="annotation"] .assistant small{color:#849087}
-.floating-preview[data-style="annotation"] .assistant{max-width:none;margin:0 0 3px 10px;padding:3px 10px 8px;border-left:2px solid #86a18a;border-radius:0;background:transparent;color:#405247;font-size:11px;line-height:1.65}
-.floating-preview[data-style="annotation"] .composer,.floating-preview[data-style="annotation"] .notebox{background:#fffdf7;border-top-color:#e8e8df}
-.floating-preview[data-style="annotation"] .label{color:#496451;font-size:10px;letter-spacing:.02em}
-.floating-preview[data-style="annotation"] .askrow input,.floating-preview[data-style="annotation"] .note{border-color:#d9ded3;background:#fffefa}
-.floating-preview[data-style="annotation"] .actions{background:#faf9f3}
-.floating-preview[data-style="annotation"] .main-actions .save{background:#315c47;border-color:#315c47;box-shadow:0 3px 8px #315c4724}
-.floating-preview[data-style="annotation"] .main-actions .continue{background:#fffdf7;border-color:#cbd4c8;color:#45634f}
-.floating-preview[data-style="annotation"] .utility button{background:#f0f1e9;border-color:#d7ddd1;color:#526a57}
-.floating-preview[data-style="annotation"] .status{color:#7d877d}
-.floating-preview[data-style="annotation"] .queue-preview{background:#f4f4ec;border-color:#e0e4d9}
-.floating-preview[data-style="annotation"] .queue-page{background:#fffdf7}
+
+.expand-answer{display:none}.thread-label,.answer-state{display:none}.view-tabs{flex:0 0 38px;display:flex;align-items:stretch;gap:4px;padding:0 13px;border-bottom:1px solid var(--line);background:var(--surface);position:relative;z-index:3}.view-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--muted);font-size:11px;font-weight:550}.view-tab[aria-selected="true"]{border-bottom-color:var(--accent);color:var(--accent);font-weight:700}.tab-count{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--surface2);color:var(--muted);font-size:9px;font-weight:650}.view-tab[aria-selected="true"] .tab-count{background:var(--accent-soft);color:var(--accent)}.queue-page{inset:90px 0 0}.queue-page-head h3{display:flex;align-items:center;gap:6px}.queue-count-label{color:var(--muted);font-size:12px;font-weight:500}.queue-page-tools #queue-clear:hover{border-color:#d6a6a0;color:#9b4d46}
+.floating-preview[data-style="night"] .view-tabs{background:var(--surface)}.floating-preview[data-style="glass"] .view-tabs{background:#f8fcfbdc;backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4)}.floating-preview[data-style="cat"] .view-tabs{background:#fffaf3}
+.view-tabs{justify-content:flex-start;gap:6px}.view-tab{flex:0 0 auto;padding:0 10px}#card-tab{min-width:78px}#queue-tab{min-width:128px}
+
+.tab-return{display:none;align-items:center;justify-content:center;flex:0 0 auto;margin-left:5px;padding:5px 8px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:7px;background:var(--surface2);color:var(--accent);font-size:9px;font-weight:600;white-space:nowrap}.floating-preview[data-page="queue"] .tab-return,.floating-preview[data-update-origin="true"] .tab-return{display:inline-flex}.update-kicker{display:none;margin:0 0 4px;color:var(--accent);font-size:10px;font-weight:650}.floating-preview[data-update-origin="true"] .update-kicker{display:block}
+
+.tab-return{border-color:transparent;background:transparent;padding:5px 9px;color:var(--accent);font-size:10px;font-weight:600}.tab-return:hover{border-color:transparent;background:var(--accent-soft)}button:focus:not(:focus-visible){outline:none;box-shadow:none}.floating-preview button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+.actions{gap:5px;padding:8px 14px 7px}.main-actions.action-row{display:flex;align-items:center;flex-wrap:nowrap;gap:4px;width:100%}.main-actions.action-row>.save{flex:1 1 94px;min-width:0;padding:7px 7px;min-height:34px;border-radius:8px;font-size:9.5px;gap:4px}.main-actions.action-row>.continue{flex:1.2 1 116px;min-width:0;padding:7px 6px;min-height:34px;border-radius:8px;font-size:9px;gap:4px}.main-actions.action-row .utility{display:contents}.main-actions.action-row .utility button{flex:0 1 auto;min-width:0;min-height:32px;padding:5px 6px;border-radius:8px;font-size:9px;gap:4px}.action-divider{flex:0 0 1px;height:20px;margin:0 2px;background:var(--line)}.main-actions.action-row .action-icon{font-size:13px}.main-actions.action-row .action-arrow{font-size:11px}.main-actions.action-row .tool-icon{font-size:11px}
+.queue-page-tools{align-items:center;justify-content:space-between}.queue-tools-hint{min-width:0;margin-right:auto;color:var(--muted);font-size:10px;white-space:nowrap}
+
+.main-actions.action-row>.continue{background:color-mix(in srgb,var(--accent-soft) 76%,var(--surface));border-color:color-mix(in srgb,var(--accent) 38%,var(--line));color:var(--accent);font-weight:650;box-shadow:inset 0 1px #ffffff70}.main-actions.action-row .utility button{background:color-mix(in srgb,var(--accent-soft) 46%,var(--surface));border-color:color-mix(in srgb,var(--accent) 24%,var(--line));color:color-mix(in srgb,var(--accent) 82%,var(--text));font-weight:600;box-shadow:inset 0 1px #ffffff60}.main-actions.action-row>.save{background:var(--accent);border-color:var(--accent);color:#fff}.main-actions.action-row>.save:hover{filter:brightness(.96)}.main-actions.action-row>.continue:hover{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 48%,var(--line))}.main-actions.action-row .utility button:hover{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 38%,var(--line))}.main-actions.action-row button:active{transform:translateY(1px)}.floating-preview[data-style="night"] .main-actions.action-row>.continue{background:#2b4035;border-color:#557263;color:#c8e2d0;box-shadow:inset 0 1px #ffffff0d}.floating-preview[data-style="night"] .main-actions.action-row .utility button{background:#26372e;border-color:#40584b;color:#bcd2c4;box-shadow:inset 0 1px #ffffff0a}.floating-preview[data-style="night"] .main-actions.action-row>.save{background:#83c5a2;border-color:#83c5a2;color:#17261e}
+/* 04 小猫文具：以咖啡馆手绘图为灵感，做成纸感、墨线和文具贴纸的独立主题。 */
+.floating-preview[data-style="cat"]{--accent:#76502f;--accent-soft:#f2e5cb;--text:#3d2b1d;--muted:#89745d;--line:#e8d8b9;--surface:#fff9e9;--surface2:#f7edda;--focus:#c48b4f;background:#fff8e8;border:1px solid #d9c39c;border-radius:18px;box-shadow:0 20px 55px #59412630;font-family:"Trebuchet MS","YouYuan","幼圆","KaiTi","Microsoft YaHei",sans-serif;color:#3d2b1d}
+.floating-preview[data-style="cat"] .card-header{background:#fff5df;border-bottom:1px solid #e6d4af}
+.floating-preview[data-style="cat"] .brand{color:#684522;font-family:"Trebuchet MS","YouYuan","幼圆",sans-serif;font-weight:800;letter-spacing:.01em}
+.floating-preview[data-style="cat"] .brandmark{color:#a66a2d}.floating-preview[data-style="cat"] .model{background:#efe0c2;color:#77532e;border-radius:999px}
+.floating-preview[data-style="cat"] .view-tabs{background:#fff5df;border-bottom:1px dashed #d9c39c}.floating-preview[data-style="cat"] .view-tab[aria-selected="true"]{border-bottom-color:#80552d;color:#684522}
+.floating-preview[data-style="cat"] .topic-header{background:#fff9e9;border-bottom:1px dashed #cfb88c}
+.floating-preview[data-style="cat"] .topic-title-row h2{color:#57391f;font-family:"YouYuan","幼圆","KaiTi","STKaiti","Microsoft YaHei",sans-serif;font-weight:800;letter-spacing:.01em}
+.floating-preview[data-style="cat"] .topic-sub{color:#947550}.floating-preview[data-style="cat"] .tag{background:#efe2c9;color:#805b32;border-radius:999px}
+.floating-preview[data-style="cat"] .original{color:#70563a}.floating-preview[data-style="cat"] .original b{color:#57391f}.floating-preview[data-style="cat"] .context{color:#8d7558}
+.floating-preview[data-style="cat"] .content{background:#fffdf5;scrollbar-color:#dbc69f transparent}
+.floating-preview[data-style="cat"] .eyebrow{color:#96622e;font-family:"YouYuan","幼圆","KaiTi",sans-serif;font-size:12px;letter-spacing:.03em}
+.floating-preview[data-style="cat"] .answer-block h3{color:#80552d;font-family:"YouYuan","幼圆","KaiTi",sans-serif;font-weight:800}
+.floating-preview[data-style="cat"] .answer-block p,.floating-preview[data-style="cat"] .assistant{color:#574734}.floating-preview[data-style="cat"] .answer-block strong{color:#684522}
+.floating-preview[data-style="cat"] .turn{background:#f4ead8;border:1px solid #ead9bc;color:#59452f}.floating-preview[data-style="cat"] .assistant{background:#f8f0e1;border:1px solid #eee0c4}
+.floating-preview[data-style="cat"] .composer,.floating-preview[data-style="cat"] .notebox{background:#fff9e9;border-top-color:#eadcc2}
+.floating-preview[data-style="cat"] .label{color:#80552d;font-family:"YouYuan","幼圆","KaiTi",sans-serif;font-size:11px}
+.floating-preview[data-style="cat"] .askrow input,.floating-preview[data-style="cat"] .note{background:#fffdf7;border-color:#dfcfad;color:#463523;border-radius:10px}
+.floating-preview[data-style="cat"] .askrow input:focus,.floating-preview[data-style="cat"] .note:focus{border-color:#b17a42;box-shadow:0 0 0 3px #bd8a4a2b}
+.floating-preview[data-style="cat"] .askrow button,.floating-preview[data-style="cat"] .main-actions.action-row>.save,.floating-preview[data-style="cat"] .queue-page-tools .export{background:#79502c;border-color:#79502c;color:#fff8e9;box-shadow:0 2px 0 #54381f}
+.floating-preview[data-style="cat"] .main-actions.action-row>.continue{background:#f2e5cb;border-color:#d2b98e;color:#684522}
+.floating-preview[data-style="cat"] .main-actions.action-row .utility button{background:#fff7e5;border-color:#ddc9a3;color:#77552f}
+.floating-preview[data-style="cat"] .actions{background:#fff8e8;border-top:1px dashed #ddc8a2}.floating-preview[data-style="cat"] .status{color:#8a765a}
+.floating-preview[data-style="cat"] .status-check{background:#e8dcc0;color:#75532e}.floating-preview[data-style="cat"] .queue-preview{background:#f7edd9;border-color:#e3d1ad;color:#77552f}
+.floating-preview[data-style="cat"] .queue-page{background:#fff9e9}.floating-preview[data-style="cat"] .queue-item{border-bottom:1px dashed #e3d2b3}
+.floating-preview[data-style="cat"] .queue-page-head button,.floating-preview[data-style="cat"] .queue-page-tools button,.floating-preview[data-style="cat"] .qactions button{background:#f6ecd8;border-color:#e1cfad;color:#75512e}
+.floating-preview[data-style="cat"] .cat-buddy{display:flex;position:static;width:100%;align-items:center;justify-content:flex-start;gap:9px;margin:9px 0 0;padding:7px 10px;border:1px dashed #c6a477;border-radius:10px 15px 10px 15px;background:#f8efd9;color:#71502d;box-shadow:2px 2px 0 #ead9b7}
+.floating-preview[data-style="cat"] .cat-doodle{width:58px;height:46px;object-fit:contain;overflow:visible;filter:drop-shadow(0 1px 0 #e8d4b1)}
+.floating-preview[data-style="cat"] .cat-buddy span{display:flex;flex-direction:column;gap:2px;font-size:10px;letter-spacing:.02em}
+.floating-preview[data-style="cat"] .cat-buddy b{font-size:11px;color:#654522}.floating-preview[data-style="cat"] .cat-buddy small{font-size:9px;color:#9a7950}
+.floating-preview[data-style="cat"] .count-paw{color:#8e6133}
+/* 收敛检查：玻璃版需要看见背后的柔色透光；批注版保留解释开头，避免像空卡。 */
+.floating-preview[data-style="glass"]{--surface:#ffffffb8;--surface2:#f5f8f9a8;background:linear-gradient(145deg,#ffffffc9,#e7f0f3b8);box-shadow:0 24px 60px #31576a3a,inset 0 1px #ffffffd9}
+.floating-preview[data-style="glass"] .content{background:#f7fbf9a8}
+.floating-preview[data-style="glass"] .topic-header{background:#ffffffb0}
+.floating-preview[data-style="glass"] .answer-block{background:transparent}
+/* 03 知识便签：从参考图里的彩色小组件、便签卡和清晰层级取材。 */
+.floating-preview[data-style="colorcard"]{--accent:#3c65c9;--accent-soft:#eaf0ff;--text:#24334e;--muted:#728099;--line:#dfe5f1;--surface:#fffefa;--surface2:#f4f6fc;--focus:#6d8fea;background:#fffefa;border-color:#dbe3f2;box-shadow:0 20px 55px #293d6920}
+.floating-preview[data-style="colorcard"] .card-header,.floating-preview[data-style="colorcard"] .view-tabs{background:#f6f8ff}
+.floating-preview[data-style="colorcard"] .brand,.floating-preview[data-style="colorcard"] .topic-title-row h2{color:#2d477f}
+.floating-preview[data-style="colorcard"] .brandmark{color:#eb8a59}
+.floating-preview[data-style="colorcard"] .model{background:#e3ebff;color:#395ca9;border-radius:999px}
+.floating-preview[data-style="colorcard"] .view-tab[aria-selected="true"]{border-bottom-color:#3c65c9;color:#3156b1}
+.floating-preview[data-style="colorcard"] .tag{background:#e6edff;color:#3c5fb5;border-radius:999px}
+.floating-preview[data-style="colorcard"] .topic-header{background:#fffefa}
+.floating-preview[data-style="colorcard"] .original{padding:7px 9px;border-left:3px solid #efbf43;border-radius:0 8px 8px 0;background:#fff7d9;color:#625530}
+.floating-preview[data-style="colorcard"] .original b{color:#3158b1}
+.floating-preview[data-style="colorcard"] .content{background:#f8faff}
+.floating-preview[data-style="colorcard"] .eyebrow,.floating-preview[data-style="colorcard"] .label{color:#3c65c9}
+.floating-preview[data-style="colorcard"] .answer-block h3{display:table;margin:10px 0 4px;padding:2px 7px;border-radius:5px;background:#e9efff;color:#3459b1;font-size:11px}
+.floating-preview[data-style="colorcard"] .answer-block h3:nth-of-type(2){background:#ffede4;color:#ad5c3c}
+.floating-preview[data-style="colorcard"] .answer-block h3:nth-of-type(3){background:#e7f4eb;color:#39704d}
+.floating-preview[data-style="colorcard"] .answer-block p,.floating-preview[data-style="colorcard"] .assistant{color:#35445e}
+.floating-preview[data-style="colorcard"] .answer-block strong{color:#3158b1}
+.floating-preview[data-style="colorcard"] .turn{background:#f0eaff;color:#51477c}
+.floating-preview[data-style="colorcard"] .assistant{background:#e9f2ff;border:1px solid #d8e7ff}
+.floating-preview[data-style="colorcard"] .askrow input,.floating-preview[data-style="colorcard"] .note{border-color:#d6deef;background:#fff;color:#24334e}
+.floating-preview[data-style="colorcard"] .askrow button,.floating-preview[data-style="colorcard"] .main-actions.action-row>.save,.floating-preview[data-style="colorcard"] .queue-page-tools .export{background:#3c65c9;border-color:#3c65c9;color:white}
+.floating-preview[data-style="colorcard"] .main-actions.action-row>.continue{background:#fff4cc;border-color:#e8c85c;color:#785b10}
+.floating-preview[data-style="colorcard"] .main-actions.action-row .utility button{background:#f1f4ff;border-color:#cfdbf5;color:#3b5da7}
+.floating-preview[data-style="colorcard"] .actions{background:#fffefa;border-top-color:#e5eaf4}
+.floating-preview[data-style="colorcard"] .status-check{background:#e4f2e8;color:#39704d}
+.floating-preview[data-style="colorcard"] .queue-preview{background:#f3f6ff;border-color:#dce4f5;color:#395a9c}
+.floating-preview[data-style="colorcard"] .queue-page{background:#fffefa}
+.floating-preview[data-style="colorcard"] .queue-item{border-bottom-color:#e3e9f4}
+.floating-preview[data-style="colorcard"] .queue-page-head button,.floating-preview[data-style="colorcard"] .queue-page-tools button,.floating-preview[data-style="colorcard"] .qactions button{background:#f0f4ff;border-color:#d9e2f5;color:#395caa}
+
+/* 06 柔和圆角：实体表面、轻阴影、胶囊导航与独立内容卡片。 */
+.floating-preview[data-style="soft"]{--accent:#56568b;--accent-soft:#ecebf8;--text:#2e3147;--muted:#6c7183;--line:#e3e5ee;--surface:#f5f5fa;--surface2:#eeedf6;--focus:#9291bb;background:#f5f5fa;color:#2e3147;border-color:#e0e2ed;box-shadow:0 20px 55px #34354c25}
+.floating-preview[data-style="soft"] .card-header{background:transparent;border:0}
+.floating-preview[data-style="soft"] .brand{color:#474771}
+.floating-preview[data-style="soft"] .view-tabs{margin:0 12px;padding:4px;gap:3px;border:0;border-radius:13px;background:#e9e9f2;flex-basis:40px}
+.floating-preview[data-style="soft"] .view-tab{border:0;border-radius:10px}
+.floating-preview[data-style="soft"] .view-tab[aria-selected="true"]{background:white;color:#4c4c7c;box-shadow:0 2px 5px #34344a14}
+.floating-preview[data-style="soft"] .topic-header{background:transparent;padding:14px 16px 12px;border:0}
+.floating-preview[data-style="soft"] .topic-title-row h2{color:#2e3147;font-size:22px}
+.floating-preview[data-style="soft"] .original{margin-top:8px;padding:8px 10px;border-radius:10px;background:#eaeaf4;color:#5a5d72}
+.floating-preview[data-style="soft"] .original b{color:#414569}
+.floating-preview[data-style="soft"] .content{margin:0 12px 9px;padding:14px;background:white;border:1px solid #e6e7ef;border-radius:16px;box-shadow:0 3px 10px #31314f06}
+.floating-preview[data-style="soft"] .answer-block p,.floating-preview[data-style="soft"] .assistant{color:#484d63}
+.floating-preview[data-style="soft"] .answer-block strong{color:#444574}
+.floating-preview[data-style="soft"] .answer-block h3{color:#56568b}
+.floating-preview[data-style="soft"] .turn{border-radius:13px 13px 4px 13px;background:#ebeaf8;color:#4a4968}
+.floating-preview[data-style="soft"] .assistant{background:#f2f3f8;border-radius:4px 13px 13px 13px}
+.floating-preview[data-style="soft"] .composer,.floating-preview[data-style="soft"] .notebox{padding:7px 14px;background:transparent;border:0}
+.floating-preview[data-style="soft"] .askrow input,.floating-preview[data-style="soft"] .note{border-radius:12px;background:white;border-color:#dcdfeb;color:#2e3147}
+.floating-preview[data-style="soft"] .askrow button{border-radius:12px}
+.floating-preview[data-style="soft"] .actions{margin-top:5px;background:#eeedf6;border-top:1px solid #e2e1ee;border-radius:16px 16px 0 0}
+.floating-preview[data-style="soft"] .main-actions.action-row button{border-radius:10px}
+.floating-preview[data-style="soft"] .queue-page{inset:96px 0 0;background:#f5f5fa}
+.floating-preview[data-style="soft"] .queue-item{margin:7px 0;padding:12px;border:1px solid #e3e5ee;border-radius:13px;background:white}
+.floating-preview[data-style="soft"][data-tint] .view-tab[aria-selected="true"]{background:var(--tint-input)}
+.floating-preview[data-style="soft"][data-tint] .queue-item{background:var(--tint-input)}
+.style-controls{display:flex;flex-direction:column;align-items:flex-end;gap:5px}.palette-options{display:flex;align-items:center;gap:7px;padding:3px 7px;border:1px solid #dce4dd;border-radius:9px;background:#ffffffba;color:#647267;font-size:10px}.palette-options[hidden]{display:none}.palette-options button{position:relative;width:20px;height:20px;padding:0;border:2px solid #ffffff;border-radius:50%;box-shadow:0 0 0 1px #b8c0b8}.palette-options button[aria-pressed="true"]{box-shadow:0 0 0 2px #3f594b}.palette-options button[aria-pressed="true"]::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:white;font-size:11px;font-weight:800;text-shadow:0 1px 2px #0008}
+@media(max-width:640px){.style-controls{width:100%;align-items:stretch}.palette-options{align-self:flex-end}}
+/* 三款方案的对比页只呈现学习卡弹窗本体，不模拟浏览器框或背景网页。 */
+body{min-height:100dvh;display:flex;flex-direction:column}
+.browser{width:100%;max-width:none;flex:1;min-height:0;margin:0 auto 12px;padding:0 18px 16px}
+.browser-window{height:100%;max-height:none;min-height:0;overflow:visible;border:0;border-radius:0;background:transparent;box-shadow:none}
+.browser-bar,.webpage,.research{display:none}
+.scene{height:100%;display:flex;justify-content:center;gap:0;padding:0;background:transparent}
+.floating-preview{width:min(460px,100%);height:100%;max-height:820px;border-radius:18px}
+@media(max-width:640px){.topline{height:30px;padding:0 10px}.chooser{gap:8px;margin:5px auto 8px;padding:0 9px}.chooser h1{font-size:16px}.chooser p{font-size:10px}.styles{gap:3px;padding:3px}.styles button{padding:7px 6px;font-size:10px}.browser{padding:0 7px 8px}.browser-window,.scene{height:100%}.floating-preview{width:min(460px,100%);height:100%;max-height:none;border-radius:14px}}
+/* 单独弹窗模式用于直接查看 04，不显示风格选择栏。 */
+body.popup-only{min-height:100dvh;background:#f5f1e7}
+body.popup-only .topline,body.popup-only .chooser,body.popup-only .browser-bar,body.popup-only .webpage,body.popup-only .research{display:none}
+body.popup-only .browser{width:100%;max-width:none;height:100dvh;margin:0;padding:0}
+body.popup-only .browser-window{width:100%;height:100dvh;max-height:none;min-height:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+body.popup-only .scene{display:flex;width:100%;height:100%;justify-content:center;padding:0;background:transparent}
+body.popup-only .floating-preview{width:min(460px,100vw);height:100%;max-height:100dvh;border-radius:14px;border-color:#d9c39c}
+@media(max-width:640px){body.popup-only .browser,body.popup-only .browser-window{height:100dvh}body.popup-only .floating-preview{width:100vw;border-radius:0}}
+
+/* 弹窗内配色：只改背景和边框，不覆写文字颜色。 */
+.card-header{z-index:20}
+.appearance-trigger{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border:1px solid transparent;border-radius:50%;background:transparent;padding:6px}
+.appearance-trigger:hover,.appearance-trigger[aria-expanded="true"]{background:var(--surface2);border-color:var(--line)}
+.appearance-wheel{width:19px;height:19px;border-radius:50%;background:conic-gradient(#9bbce0 0 60deg,#d3b1c8 60deg 120deg,#ecc2b2 120deg 180deg,#edd697 180deg 240deg,#afcdbb 240deg 300deg,#c3b8e1 300deg);box-shadow:inset 0 0 0 1px #00000012,0 1px 2px #00000015}
+.appearance-panel{position:absolute;right:12px;top:calc(100% + 6px);width:272px;max-width:calc(100vw - 32px);padding:16px;background:#fffffff7;border:1px solid #e1e4e8;border-radius:16px;box-shadow:0 12px 40px #1829382b;backdrop-filter:blur(18px);color:#2d343c;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}
+.appearance-panel[hidden]{display:none}
+.appearance-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px}
+.appearance-heading>span{font-size:11px;color:#69727c}
+.appearance-panel p{font-size:11px;color:#68717b;margin:5px 0 12px}
+.appearance-swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 6px}
+.appearance-swatches button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:65px;border:1px solid transparent;border-radius:10px;background:transparent;color:#454d57;font-size:10px;padding:6px 3px}
+.appearance-swatches button:hover{background:#f4f6f8}
+.appearance-swatches button i{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:var(--swatch);border:1px solid #00000019;font-style:normal}
+.appearance-swatches button[aria-pressed="true"]{background:#f2f5f8;border-color:#d2dbe4}
+.appearance-swatches button[aria-pressed="true"] i{outline:2px solid #465869;outline-offset:2px}
+.appearance-swatches button[aria-pressed="true"] i:after{content:"✓";color:#344453;font-size:14px;font-weight:700}
+.appearance-footer{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:12px;padding-top:11px;border-top:1px solid #e8ebee;font-size:10px;color:#69727c}
+.appearance-footer button{padding:4px 0;border:0;background:transparent;color:#3e5f82;font-size:10px}
+.floating-preview[data-tint]{background:var(--tint-base)!important;border-color:var(--tint-line)!important}
+.floating-preview[data-tint] :is(.card-header,.view-tabs,.topic-header,.composer,.notebox,.actions,.queue-page){background:var(--tint-panel)!important;border-color:var(--tint-line)!important}
+.floating-preview[data-tint] .content{background:var(--tint-base)!important}
+.floating-preview[data-tint] :is(.turn,.assistant,.original,.cat-buddy,.queue-preview,.qnum,.tab-count,.status-check,.model){background:var(--tint-soft)!important;border-color:var(--tint-line)!important}
+.floating-preview[data-tint] :is(.askrow input,.note){background:var(--tint-input)!important;border-color:var(--tint-line)!important}
+.floating-preview[data-tint] :is(.main-actions.action-row>.save,.askrow button,.queue-page-tools .export){background:var(--tint-strong)!important;border-color:var(--tint-strong)!important;box-shadow:none}
+.floating-preview[data-tint] :is(.main-actions.action-row>.continue,.utility button,.qactions button,#queue-clear){background:var(--tint-soft)!important;border-color:var(--tint-line)!important}
+.floating-preview[data-tint] :is(.queue-item,.content,.action-divider){border-color:var(--tint-line)!important}
 
 
-.floating-preview[data-style="annotation"] .answer-block{position:relative;max-height:88px;overflow:hidden;transition:max-height .22s ease}
-.floating-preview[data-style="annotation"] .answer-block::after{content:"";position:absolute;left:0;right:0;bottom:0;height:24px;background:linear-gradient(transparent,#fffdf7);pointer-events:none}
-.floating-preview[data-style="annotation"] .answer-block[data-expanded="true"]{max-height:900px}
-.floating-preview[data-style="annotation"] .answer-block[data-expanded="true"]::after{display:none}
-.floating-preview[data-style="annotation"] .expand-answer{display:inline-block;margin:3px 0 1px;padding:2px 0;border:0;background:transparent;color:#416b52;font-size:10px;font-weight:600;text-align:left}
-.floating-preview:not([data-style="annotation"]) .expand-answer{display:none}
+/* 深色风格选择浅色配色后，文字明暗随背景适配；恢复原配色即恢复深色。 */
+.floating-preview[data-style="night"][data-tint]{--accent:#315b46;--accent-soft:#e9f0eb;--text:#263b2e;--muted:#586b5e;--surface:#ffffff;--surface2:#f4f6f3;color:#263b2e}
+.floating-preview[data-style="night"][data-tint] :is(.answer-block p,.turn,.assistant,.original){color:#344a3c}
+.floating-preview[data-style="night"][data-tint] :is(.context,.status,.topic-sub,.queue-note,.qinfo small,.turn small,.assistant small,.drag,.close){color:#586b5e}
+.floating-preview[data-style="night"][data-tint] .answer-block strong{color:#264f38}
+.floating-preview[data-style="night"][data-tint] :is(.main-actions.action-row>.continue,.main-actions.action-row .utility button,.queue-page-tools button,.qactions button){color:#315b46}
+.floating-preview[data-style="night"][data-tint] :is(.main-actions.action-row>.save,.askrow button,.queue-page-tools .export){color:#fff}
+.floating-preview[data-style="night"][data-tint] :is(.askrow input,.note){color:#263b2e}
+.floating-preview[data-style="night"][data-tint] :is(.askrow input,.note)::placeholder{color:#647269;opacity:1}
 
-.floating-preview[data-style="annotation"] .answer-block{display:none;max-height:none;overflow:visible}
-.floating-preview[data-style="annotation"] .answer-block[data-expanded="true"]{display:block;max-height:900px}
-.floating-preview[data-style="annotation"] .answer-block::after{display:none}
-.floating-preview[data-style="annotation"] .answer-state{display:inline;margin-left:5px;color:#8b9288;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:9px;font-weight:400;letter-spacing:0}
+/* 对比页高度由视口确定，卡片和清单共享同一个弹窗容器。 */
+body:not(.popup-only){height:100dvh;min-height:620px}
+.topline,.chooser{flex:0 0 auto}
+body:not(.popup-only) .browser{flex:1 1 0;min-height:0}
+.floating-preview[data-style] .view-tabs{flex:0 0 auto;min-height:38px;flex-wrap:wrap}
+.floating-preview .view-tab{min-height:38px}
+.floating-preview .tab-return{min-height:32px;max-width:100%;white-space:normal;text-align:center}
+.floating-preview[data-page="queue"] .topic-header{display:none}
+.floating-preview[data-style] .queue-page{position:relative;inset:auto;flex:1 1 0;min-height:0;width:100%;overflow:auto;overscroll-behavior:contain}
+.floating-preview .queue-page-tools{position:sticky;top:-15px;z-index:1;background:var(--surface);padding:10px 0;flex-wrap:wrap}
+.floating-preview[data-tint] .queue-page-tools{background:var(--tint-panel)}
+
+/* 长解释和逐轮回答各自折叠，完整内容保留在原节点。 */
+.answer-block{--fold-limit:168px}
+.assistant{--fold-limit:126px}
+.fold-body{display:flow-root}
+.assistant .fold-body p{margin:0 0 8px}
+.assistant .fold-body p:last-child{margin-bottom:0}
+.has-fold:not(.is-expanded)>.fold-body{max-height:var(--fold-limit);overflow:hidden;mask-image:linear-gradient(to bottom,#000 calc(100% - 14px),transparent)}
+.fold-toggle{display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:5px 0;border:0;background:transparent;color:var(--accent);font:inherit;font-size:11px;line-height:1.4;font-weight:650}
+.fold-toggle[hidden]{display:none}
+.fold-toggle::after{content:"⌄"}
+.fold-toggle[aria-expanded="true"]::after{content:"⌃"}
+.floating-preview #queue-export{background:var(--accent);border-color:var(--accent);color:#fff}
+.floating-preview[data-style="night"] #queue-export{color:#17261e}
+.floating-preview[data-tint] #queue-export{background:var(--tint-strong)!important;border-color:var(--tint-strong)!important;color:#fff}
+
+/* 三款共用空间分配：回答只在中间滚动；输入、笔记与操作栏不参与压缩。 */
+body:not(.popup-only){min-height:720px}
+.floating-preview .content{flex:1 1 0;min-height:0;overflow:auto;overscroll-behavior:contain;overflow-wrap:anywhere}
+.floating-preview .composer{flex:0 0 auto;padding:9px 14px}
+.floating-preview .askrow input{height:38px}
+.floating-preview .notebox{flex:0 0 auto;padding:8px 14px}
+.floating-preview .note{height:60px;min-height:60px;max-height:60px;resize:none;overflow:auto;line-height:1.55}
+.floating-preview .actions{flex:0 0 auto;padding:9px 14px 8px;min-height:72px}
+.floating-preview .main-actions.action-row{display:grid;grid-template-columns:.85fr 1.15fr 1fr 1.4fr;gap:5px}
+.floating-preview .main-actions.action-row .action-divider{display:none}
+.floating-preview .main-actions.action-row button{min-height:40px;height:40px;padding:4px;font-size:10.5px;white-space:nowrap;min-width:0}
+.floating-preview .main-actions.action-row :is(.action-icon,.tool-icon,.action-arrow){display:none}
+.floating-preview .topic-title-row h2{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.floating-preview .original{max-height:52px;overflow:auto}
+.floating-preview .status{padding:5px 0 0;min-height:18px}
+.floating-preview[data-style="cat"] .cat-buddy{width:auto;gap:7px;margin-top:6px;padding:3px 8px;border-radius:8px}
+.floating-preview[data-style="cat"] .cat-doodle{width:38px;height:26px}
+.floating-preview[data-style="cat"] .cat-buddy span{flex-direction:row;align-items:center;gap:9px}
+.floating-preview[data-style="cat"] .cat-buddy b{font-size:10px}
+.knowledge-section{display:contents}
+.floating-preview[data-style="colorcard"] .knowledge-section{display:block;position:relative;margin:0 0 10px;padding:9px 11px;border:1px solid #e0e5f1;border-left:3px solid #9db3e7;border-radius:4px 10px 10px 4px;background:#fff}
+.floating-preview[data-style="colorcard"] .knowledge-section:nth-child(2){border-left-color:#e7b297}
+.floating-preview[data-style="colorcard"] .knowledge-section:nth-child(3){border-left-color:#9fc7ac}
+.floating-preview[data-style="colorcard"] .knowledge-section h3{margin-top:0}
+.floating-preview[data-style="colorcard"][data-tint] .knowledge-section{background:var(--tint-input)}
+.turn{--fold-limit:60px}
+.turn .fold-toggle{font-size:10px}
+@media(max-width:360px){.floating-preview .composer,.floating-preview .notebox,.floating-preview .actions{padding-left:8px;padding-right:8px}.floating-preview .main-actions.action-row{gap:3px;grid-template-columns:.8fr 1.4fr 1fr 1.4fr}.floating-preview .main-actions.action-row button{padding-left:2px;padding-right:2px}}
+
+/* 统一强调色、精简头部，为阅读留出空间。 */
+.floating-preview .topic-sub{display:none}
+.floating-preview .topic-header{padding-top:8px;padding-bottom:7px}
+.floating-preview .card-header{flex-basis:46px}
+.floating-preview[data-tint]{--accent:var(--tint-strong);--accent-soft:var(--tint-soft);--text:#29362f;--muted:#59665e}
+.floating-preview :is(.content,.content p,.content strong,.note,.original){color:var(--text)!important}
+.floating-preview :is(.label,.eyebrow,.content h3,.fold-toggle,.view-tab,.tab-return){color:var(--accent)!important}
+.floating-preview .main-actions.action-row button{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px}
+.floating-preview .main-actions.action-row{grid-template-columns:1.15fr 1.25fr 1fr 1.35fr}
+.floating-preview .main-actions.action-row svg{width:14px;height:14px;flex:none;stroke:currentColor;stroke-width:1.65;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.floating-preview .main-actions.action-row :is(.utility button,.continue){color:var(--accent)!important;background:var(--accent-soft)!important;border-color:var(--line)!important;box-shadow:none}
+.floating-preview .main-actions.action-row .save{background:var(--accent)!important;color:white!important;border-color:var(--accent)!important;box-shadow:none}
+.floating-preview .fold-toggle{position:sticky;top:0;z-index:1;display:block;margin:0 0 5px auto;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:10px}
+.floating-preview .fold-toggle[hidden]{display:none}
+.floating-preview .answer-block>.fold-toggle{margin-top:-26px}
+.floating-preview .content>.eyebrow{padding-right:112px;min-height:26px}
+.floating-preview[data-tint] .fold-toggle{background:var(--tint-panel)}
+@media(max-width:520px){.floating-preview .main-actions.action-row button{flex-direction:column;gap:3px;height:48px;min-height:48px;padding:3px 1px;font-size:10px}.floating-preview .main-actions.action-row{grid-template-columns:1.1fr 1.25fr 1fr 1.3fr}}
+/* 咖啡馆手绘：正文清晰，手绘细节只留在标题与小猫。 */
+.floating-preview[data-style="cat"]{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}
+.floating-preview[data-style="cat"] :is(.answer-block h3,.eyebrow,.label){font-family:inherit;font-weight:600;letter-spacing:normal}
+.floating-preview[data-style="cat"] :is(.answer-block p,.assistant,.turn){line-height:1.8}
+.floating-preview[data-style="cat"] .cat-buddy{box-shadow:none;border-color:var(--line)}
+.floating-preview[data-style="cat"] .cat-doodle{filter:none}
+.floating-preview[data-style="cat"][data-tint] :is(.brand,.brandmark,.original b,.cat-buddy b,.cat-buddy small,.context,.status){color:var(--accent)}
+.floating-preview[data-style="cat"][data-tint] :is(.content,.queue-page){scrollbar-color:var(--tint-line) transparent}
+.floating-preview[data-style="cat"][data-tint] .fold-toggle{border-color:var(--tint-line)}
+.floating-preview[data-style="cat"][data-tint] :is(.askrow input,.note):focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.floating-preview[data-style="cat"][data-tint="white"]{border-color:#d4d8d3;box-shadow:0 18px 48px #24312b1c}
+.floating-preview[data-style="cat"][data-tint="white"] .cat-buddy{border:0;background:#f5f6f3!important;box-shadow:none}
+.floating-preview[data-style="cat"][data-tint="white"] .askrow button{box-shadow:none}
+/* 模型为辅助信息，关键词保持清晰的阅读层级。 */
+.floating-preview .card-header .model{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;font-size:10px;font-weight:400;line-height:1.4;padding:2px 6px;border-radius:6px;background:#f0f1ee;color:#59635d;box-shadow:none}
+.floating-preview[data-tint] .card-header .model{background:var(--tint-soft);color:#59635d}
+.floating-preview .topic-header .topic-title-row h2{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;font-size:23px;font-weight:600;line-height:1.3;letter-spacing:0;color:#29362f}
 </style>
 </head>
 <body>
 <div class="topline"><strong>✦ KNOWLY · 弹窗 UI 概念稿</strong><span>同一弹窗尺寸 · 切换风格对比</span></div>
-<div class="chooser"><div><h1>选词时的学习卡浮层</h1><p>模拟网页阅读背景上的小插件弹窗。点击右侧风格切换，交互为概念演示。</p></div><div class="styles" role="group" aria-label="选择弹窗风格"><button type="button" data-style-choice="editorial" aria-pressed="true">01 温润阅读</button><button type="button" data-style-choice="night" aria-pressed="false">02 深色专注</button><button type="button" data-style-choice="glass" aria-pressed="false">03 macOS 液态玻璃</button><button type="button" data-style-choice="cat" aria-pressed="false">04 学习小猫</button><button type="button" data-style-choice="annotation" aria-pressed="false">05 页边批注</button></div></div>
+<div class="chooser"><div><h1>三款学习卡弹窗</h1><p>切换视觉方向；卡片按插件比例展示，可体验追问、笔记和待保存清单。</p></div><div class="style-controls"><div class="styles" role="group" aria-label="选择弹窗风格"><button type="button" data-style-choice="editorial" aria-pressed="true">01 简洁阅读</button><button type="button" data-style-choice="cat" aria-pressed="false">02 咖啡馆手绘</button><button type="button" data-style-choice="colorcard" aria-pressed="false">03 知识便签</button></div></div></div>
 <main class="browser">
 <div class="browser-window"><div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><div class="address">example.com / machine-learning / metrics</div></div>
 <div class="scene"><article class="webpage"><span class="site">机器学习笔记　/　模型评估</span><h2>如何判断一个分类模型的表现？</h2><p>评估分类模型时，通常会查看准确率、精确率、召回率和 F1 值。单独看准确率有时会掩盖少数类别上的问题。</p><p>混淆矩阵用于评估模型效果，理解准确率（Accuracy）、召回率（Recall）、F1 值等指标。它会将真实标签与模型预测结果交叉汇总。</p><p>选中页面中的术语，可以在阅读上下文中查看解释，继续追问，并把自己的理解整理成学习卡。</p><div class="page-lines"><i></i><i></i><i></i><i></i><i></i></div></article>
 <section class="floating-preview" data-style="editorial" data-page="card" aria-label="Knowly 学习卡弹窗">
-  <header class="card-header"><span class="brand"><span class="brandmark">✦</span> Knowly</span><span class="model">DeepSeek</span><span class="drag">拖动</span><button class="close" aria-label="关闭">×</button></header>
-  <section class="topic-header"><div class="topic-title-row"><h2 id="term">混淆矩阵</h2><span class="tag">机器学习</span></div><div class="topic-sub">评估模型分类结果时最常用的基础工具</div><div class="original">原句　<b>混淆矩阵</b>用于评估模型效果，理解准确率、召回率、F1 值等指标。</div><label class="context"><input type="checkbox">发送原句给 AI（可选）</label><div class="cat-buddy"><b>🐱📚</b><span>小橘正在陪你学习</span></div><div class="return-origin"><span id="update-target">正在更新「RAG」</span><button id="return-origin-button" type="button">返回「混淆矩阵」学习卡</button></div></section>
-  <div class="content"><div class="eyebrow">通俗解释 <span class="answer-state" id="answer-state">已折叠</span></div><div class="answer-block"><h3>这是什么</h3><p><strong>混淆矩阵</strong>是一张用来比较模型预测结果与真实结果的表格。它把判断分成真正例、假正例、真负例和假负例，帮你看清模型“错在哪里”。</p><h3>有什么用</h3><p>当准确率看起来很高，但模型仍可能漏掉重要样本时，可以结合精确率、召回率和 F1 值综合判断。</p><h3>举个例子</h3><p>垃圾邮件识别中，它能分别记录垃圾邮件被找到，以及正常邮件被误判为垃圾等情况。</p></div><button type="button" class="expand-answer" id="expand-answer" aria-expanded="false">展开完整解释　↓</button><div class="thread-label"><strong>追问脉络</strong><span id="turn-count">2 轮</span></div><div class="turn"><small>你 · 追问 2</small>准确率和召回率有什么区别？</div><div class="assistant"><small>Knowly</small><strong>准确率看“判为正例的有多少是真的”；召回率看“真正例中找回了多少”。</strong>前者关注误报，后者关注漏报。</div></div>
+  <header class="card-header"><span class="brand"><span class="brandmark">✦</span> Knowly</span><span class="model">DeepSeek</span><span class="drag">拖动</span>
+<button class="appearance-trigger" id="appearance-trigger" type="button" aria-label="更换弹窗配色" title="更换弹窗配色" aria-expanded="false" aria-controls="appearance-panel"><span class="appearance-wheel" aria-hidden="true"></span></button>
+<div class="appearance-panel" id="appearance-panel" role="dialog" aria-label="弹窗配色" hidden>
+<div class="appearance-heading"><strong>弹窗配色</strong><span id="appearance-current">原配色</span></div>
+<p>选一种喜欢的底色</p>
+<div class="appearance-swatches" role="group" aria-label="选择配色">
+<button type="button" data-tint-choice="white" aria-pressed="false"><i style="--swatch:#f7f7f5"></i><span>珍珠白</span></button>
+<button type="button" data-tint-choice="blue" aria-pressed="false"><i style="--swatch:#c8def5"></i><span>晴空蓝</span></button>
+<button type="button" data-tint-choice="yellow" aria-pressed="false"><i style="--swatch:#f6e3a5"></i><span>奶油黄</span></button>
+<button type="button" data-tint-choice="red" aria-pressed="false"><i style="--swatch:#efc7c5"></i><span>珊瑚红</span></button>
+<button type="button" data-tint-choice="green" aria-pressed="false"><i style="--swatch:#c8decf"></i><span>鼠尾草绿</span></button>
+<button type="button" data-tint-choice="purple" aria-pressed="false"><i style="--swatch:#dcd3ef"></i><span>雾紫</span></button>
+</div>
+<div class="appearance-footer"><span>文字随底色自动适配</span><button id="appearance-reset" type="button">恢复原配色</button></div>
+</div><button class="close" aria-label="关闭">×</button></header>
+  <nav class="view-tabs" role="tablist" aria-label="学习卡页面"><button class="view-tab" id="card-tab" type="button" role="tab" aria-selected="true" data-page-tab="card">学习卡</button><button class="view-tab" id="queue-tab" type="button" role="tab" aria-selected="false" data-page-tab="queue">待保存清单 <span class="tab-count" id="count">4</span></button><button class="tab-return" id="queue-return" type="button">返回「混淆矩阵」学习卡</button></nav>
+  <section class="topic-header"><div class="update-kicker" id="update-target">正在更新「RAG」</div><div class="topic-title-row"><h2 id="term">混淆矩阵</h2></div><div class="topic-sub">评估模型分类结果时最常用的基础工具</div><div class="original">原句　<b>混淆矩阵</b>用于评估模型效果，理解准确率、召回率、F1 值等指标。</div><label class="context" title="仅用于下一次追问；不会重新生成已有解释。"><input type="checkbox">下次追问附带原句</label><div class="cat-buddy"><img class="cat-doodle" src="assets/cat-study-mascot.png" alt="趴在书本上学习的小猫"><span><b>小橘的自习时间</b><small>今天也学一点点 ✦</small></span></div></section>
+  <div class="content"><div class="eyebrow">通俗解释 <span class="answer-state" id="answer-state">已折叠</span></div><div class="answer-block"><h3>这是什么</h3><p><strong>混淆矩阵</strong>是一张用来比较模型预测结果与真实结果的表格。它把判断分成真正例、假正例、真负例和假负例，帮你看清模型“错在哪里”。</p><h3>有什么用</h3><p>当准确率看起来很高，但模型仍可能漏掉重要样本时，可以结合精确率、召回率和 F1 值综合判断。</p><h3>举个例子</h3><p>垃圾邮件识别中，它能分别记录垃圾邮件被找到，以及正常邮件被误判为垃圾等情况。</p><p>读表时，先确认行和列分别代表真实类别还是预测类别。对角线通常表示判断正确的样本，其余格子则帮助你找到模型容易混淆的类别。再结合各类样本数量，判断哪些错误最值得优先改进。</p></div><div class="thread-label"><strong>追问脉络</strong><span id="turn-count">2 轮</span></div><div class="turn"><small>你 · 追问 2</small>准确率和召回率有什么区别？</div><div class="assistant"><small>Knowly</small><p><strong>准确率看全部样本中判断正确的比例；召回率看真正的目标中找回了多少。</strong></p><p>例如，100 封邮件中有 10 封垃圾邮件。如果模型把所有邮件都判为正常，准确率仍有 90%，但垃圾邮件召回率是 0%。</p><p>所以当两类样本数量差别很大时，只看准确率容易忽略漏检。可以结合召回率判断目标有没有被找到，再用精确率检查找到的结果是否可靠。</p><p>“判为正例的有多少是真的”对应的是精确率，不是准确率。</p><p>可以把这几个指标放在一起看：先用准确率了解整体表现，再用召回率检查目标是否被遗漏，最后用精确率判断筛选结果是否可靠。实际任务对漏报和误报的容忍程度不同，关注重点也会不同。</p></div></div>
   <form class="composer" id="follow-form"><label class="label" for="follow-input">继续追问</label><div class="askrow"><input id="follow-input" placeholder="输入你想继续了解的问题"><button type="submit">追问</button></div></form>
   <section class="notebox"><label class="label" for="note">我的笔记</label><textarea class="note" id="note" placeholder="记下自己的理解或补充…">准确率不等于模型可靠；要结合误报和漏报的代价。</textarea></section>
-  <footer class="actions"><div class="main-actions"><button class="save" id="save" type="button"><span class="action-icon" aria-hidden="true">＋</span>加入待保存</button><button class="continue" type="button">加入并继续选词<span class="action-arrow" aria-hidden="true">↗</span></button></div><span class="status" id="status"><span class="status-check" aria-hidden="true">✓</span>解释、笔记和追问会一起保存</span><div class="utility"><button type="button" id="copy"><span class="tool-icon" aria-hidden="true">⧉</span>复制解释</button><button type="button"><span class="tool-icon" aria-hidden="true">↓</span>保存 Markdown</button></div></footer>
-  <button class="queue-preview" id="queue-open" type="button"><strong>待保存清单 <b class="count-paw" id="count">4</b></strong><span>RAG、BLEU/ROUGE 等</span><em>查看清单　›</em></button>
-  <div class="queue-page"><div class="queue-page-head"><div><h3>待保存清单</h3><p>4 张学习卡 · 在这里管理和更新</p></div><button id="queue-return" type="button">返回「混淆矩阵」学习卡</button></div><div class="queue-page-tools"><button class="export" type="button">合并导出</button><button type="button">清空</button></div><div class="queue-item"><span class="qnum">01</span><span class="qinfo"><strong>RAG</strong><small>当前网页 · 今天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><div class="queue-item"><span class="qnum">02</span><span class="qinfo"><strong>BLEU/ROUGE</strong><small>当前网页 · 昨天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><div class="queue-item"><span class="qnum">03</span><span class="qinfo"><strong>准确率</strong><small>评估指标 · 昨天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><div class="queue-item"><span class="qnum">04</span><span class="qinfo"><strong>召回率</strong><small>评估指标 · 昨天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><p class="queue-note">导出后清单仍会保留，确认下载完成后再清空。</p></div>
+  <footer class="actions"><div class="main-actions action-row"><div class="utility"><button type="button" id="copy" title="仅复制完整的初始解释，不包含追问和笔记。"><span class="tool-icon" aria-hidden="true">⧉</span><span>复制初始解释</span></button><button type="button" id="download" title="下载 Markdown：包含初始解释、全部追问和我的笔记。"><span class="tool-icon" aria-hidden="true">↓</span><span>保存 Markdown</span></button></div><span class="action-divider" aria-hidden="true"></span><button class="save" id="save" type="button" title="加入或更新清单：包含初始解释、全部追问和我的笔记。"><span class="action-icon" aria-hidden="true">＋</span><span class="save-label">加入待保存</span></button><button class="continue" type="button" title="保存初始解释、全部追问和笔记，然后继续在网页选词。"><span class="continue-label">加入并继续选词</span><span class="action-arrow" aria-hidden="true">↗</span></button></div><span class="status" id="status"><span class="status-check" aria-hidden="true">✓</span>解释、笔记和追问会一起保存</span></footer>
+    <div class="queue-page"><div class="queue-page-tools"><span class="queue-tools-hint">可更新卡片，或合并导出</span><button class="export" id="queue-export" type="button">合并导出</button><button id="queue-clear" type="button">清空</button></div><div class="queue-item"><span class="qnum">01</span><span class="qinfo"><strong>RAG</strong><small>当前网页 · 今天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><div class="queue-item"><span class="qnum">02</span><span class="qinfo"><strong>BLEU/ROUGE</strong><small>当前网页 · 昨天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><div class="queue-item"><span class="qnum">03</span><span class="qinfo"><strong>准确率</strong><small>评估指标 · 昨天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><div class="queue-item"><span class="qnum">04</span><span class="qinfo"><strong>召回率</strong><small>评估指标 · 昨天加入</small></span><span class="qactions"><button type="button">更新</button><button type="button">移除</button></span></div><p class="queue-note">导出后清单仍会保留，确认下载完成后再清空。</p></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </section></div></div>
 <section class="research"><strong>调研取向</strong><span>阅读内容优先，查词与保存贴近当前选区，完整清单独立展开。</span><a href="https://readlang.com/features" target="_blank" rel="noopener">Readlang</a><a href="https://migaku.com/blog/youtube/card-creation-from-text-content-migaku-browser-extension" target="_blank" rel="noopener">Migaku</a><a href="https://www.trancy.org/blog/ai-web-translator-chrome-extension-translate-learn-instantly-31f9d2252005803b80d4f0bf22f56280" target="_blank" rel="noopener">Trancy</a><span>· 液态玻璃只放在导航与操作层</span><a href="https://developer.apple.com/design/human-interface-guidelines/materials" target="_blank" rel="noopener">Apple HIG</a></section>
@@ -93,14 +315,123 @@
 <script>
 const popup=document.querySelector('.floating-preview');const toast=document.querySelector('#toast');let timer;
 function notify(message){toast.textContent=message;toast.classList.add('show');clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove('show'),1500)}
-document.querySelectorAll('[data-style-choice]').forEach(button=>button.addEventListener('click',()=>{popup.dataset.style=button.dataset.styleChoice;document.querySelectorAll('[data-style-choice]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));requestAnimationFrame(()=>{const content=popup.querySelector('.content');content.scrollTop=button.dataset.styleChoice==='annotation'?content.scrollHeight:0})}));
-const requested=new URLSearchParams(location.search).get('style');const styleButton=document.querySelector(`[data-style-choice="${requested}"]`);if(styleButton)styleButton.click();
-const originalTerm=document.querySelector('#term').textContent;document.querySelector('#queue-open').addEventListener('click',()=>popup.dataset.page='queue');document.querySelector('#queue-return').addEventListener('click',()=>popup.dataset.page='card');document.querySelector('#return-origin-button').addEventListener('click',()=>{document.querySelector('#term').textContent=originalTerm;popup.dataset.updateOrigin='false';notify(`已返回「${originalTerm}」学习卡`)});
-let turnNumber=2;document.querySelector('#follow-form').addEventListener('submit',event=>{event.preventDefault();const input=document.querySelector('#follow-input');if(!input.value.trim())return;turnNumber+=1;const turn=document.createElement('div');turn.className='turn';const label=document.createElement('small');label.textContent=`你 · 追问 ${turnNumber}`;turn.append(label,document.createTextNode(input.value.trim()));const answer=document.createElement('div');answer.className='assistant';const who=document.createElement('small');who.textContent='Knowly';answer.append(who,document.createTextNode('可以先看最容易混淆的情况，再结合实际任务判断。这里是交互示意，不会调用模型。'));document.querySelector('.content').append(turn,answer);document.querySelector('#turn-count').textContent=`${turnNumber} 轮`;input.value='';turn.scrollIntoView({block:'nearest',behavior:'smooth'});notify('追问示例已添加')});
-document.querySelector('#expand-answer').addEventListener('click',event=>{const block=document.querySelector('.answer-block');const expanded=block.dataset.expanded==='true';block.dataset.expanded=String(!expanded);event.currentTarget.setAttribute('aria-expanded',String(!expanded));event.currentTarget.textContent=expanded?'展开完整解释　↓':'收起完整解释　↑';document.querySelector('#answer-state').textContent=expanded?'已折叠':'已展开'});
-document.querySelector('#save').addEventListener('click',event=>{const button=event.currentTarget;const saved=button.dataset.saved==='true';button.dataset.saved=String(!saved);button.textContent=saved?'加入待保存':'已加入待保存';if(!saved){const count=document.querySelector('#count');count.textContent=String(Number(count.textContent)+1)}document.querySelector('#status').textContent=saved?'尚未加入清单':'已加入清单，可从下方打开清单';notify(saved?'已从清单移除':'已加入待保存清单')});
-document.querySelector('#copy').addEventListener('click',()=>notify('概念稿：已模拟复制解释'));
-document.querySelectorAll('.qactions button:first-child').forEach(button=>button.addEventListener('click',event=>{const term=event.currentTarget.closest('.queue-item').querySelector('.qinfo strong').textContent;document.querySelector('#term').textContent=term;document.querySelector('#update-target').textContent=`正在更新「${term}」`;document.querySelector('#return-origin-button').textContent=`返回「${originalTerm}」学习卡`;popup.dataset.updateOrigin='true';popup.dataset.page='card';notify(`打开「${term}」进行更新`)}));
+
+const tintOptions={
+white:{label:'珍珠白',light:['#ffffff','#ffffff','#ffffff','#f0f1ee','#d4d8d3','#44534c'],dark:['#202523','#272e2a','#19201c','#313b34','#4b5a50','#bbd3c3']},
+blue:{label:'晴空蓝',light:['#f0f5fc','#e5eef9','#fbfdff','#dce8f6','#bacce2','#325775'],dark:['#18252d','#20313d','#142129','#293e4a','#456072','#a9c9e2']},
+yellow:{label:'奶油黄',light:['#fffaf0','#fbf0d5','#fffdf7','#f6eac8','#d7c79a','#685329'],dark:['#28261d','#343022','#211f17','#423c29','#61573d','#e1d2a2']},
+red:{label:'珊瑚红',light:['#fdf4f3','#f8e7e4','#fffbfa','#f2dcd8','#dcbab3','#81504b'],dark:['#2b2120','#392a28','#241c1b','#49332f','#6b4a45','#e1bbb1']},
+green:{label:'鼠尾草绿',light:['#f3f8f3','#e8f0e6','#fcfefb','#dfeadd','#bfd0b8','#395d48'],dark:['#1d2922','#26372b','#17231c','#314635','#47634d','#b8d2b7']},
+purple:{label:'雾紫',light:['#f7f4fc','#ede7f6','#fdfbff','#e7dff1','#cbbdde','#65517e'],dark:['#25212e','#312c3c','#1e1b26','#40364e','#5b4e6e','#cdbbe5']}
+};
+const tintPanel=document.querySelector('#appearance-panel');
+const tintTrigger=document.querySelector('#appearance-trigger');
+let selectedTint=null;
+try{const saved=localStorage.getItem('knowly-preview-surface-tint');if(tintOptions[saved])selectedTint=saved}catch{}
+function applyTint(name){
+selectedTint=tintOptions[name]?name:null;
+if(selectedTint){popup.dataset.tint=selectedTint;const values=tintOptions[selectedTint].light;['base','panel','input','soft','line','strong'].forEach((key,index)=>popup.style.setProperty('--tint-'+key,values[index]))}
+else{delete popup.dataset.tint;['base','panel','input','soft','line','strong'].forEach(key=>popup.style.removeProperty('--tint-'+key))}
+document.querySelectorAll('button[data-tint-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.tintChoice===selectedTint)));
+document.querySelector('#appearance-current').textContent=selectedTint?tintOptions[selectedTint].label:'原配色';
+try{if(selectedTint)localStorage.setItem('knowly-preview-surface-tint',selectedTint);else localStorage.removeItem('knowly-preview-surface-tint')}catch{}
+}
+function closeTint(restoreFocus=false){tintPanel.hidden=true;tintTrigger.setAttribute('aria-expanded','false');if(restoreFocus)tintTrigger.focus()}
+tintTrigger.addEventListener('click',()=>{const opening=tintPanel.hidden;tintPanel.hidden=!opening;tintTrigger.setAttribute('aria-expanded',String(opening));if(opening)(tintPanel.querySelector('[aria-pressed="true"]')||tintPanel.querySelector('button')).focus()});
+document.querySelectorAll('button[data-tint-choice]').forEach(button=>button.addEventListener('click',()=>applyTint(button.dataset.tintChoice)));
+document.querySelector('#appearance-reset').addEventListener('click',()=>applyTint(null));
+document.addEventListener('pointerdown',event=>{if(!tintPanel.hidden&&!tintPanel.contains(event.target)&&!tintTrigger.contains(event.target))closeTint()});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!tintPanel.hidden){event.preventDefault();closeTint(true)}});
+document.querySelectorAll('[data-style-choice]').forEach(button=>button.addEventListener('click',()=>{popup.dataset.style=button.dataset.styleChoice;document.querySelectorAll('[data-style-choice]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));closeTint();applyTint(selectedTint);requestAnimationFrame(()=>{popup.querySelector('.content').scrollTop=0})}));
+applyTint(selectedTint);
+const params=new URLSearchParams(location.search);const requested=params.get('style');const styleButton=[...document.querySelectorAll("[data-style-choice]")].find(button=>button.dataset.styleChoice===requested);if(styleButton)styleButton.click();if(params.get('popup')==='1')document.body.classList.add('popup-only');
+
+const originalTerm=document.querySelector('#term').textContent;
+const cardDrafts=new Map();
+function captureCard(){
+if(popup.dataset.page!=='card')return;
+const term=document.querySelector('#term').textContent;
+cardDrafts.set(term,{nodes:[...popup.querySelector('.content').childNodes],note:document.querySelector('#note').value,noteScroll:document.querySelector('#note').scrollTop,input:document.querySelector('#follow-input').value,scroll:popup.querySelector('.content').scrollTop,sub:document.querySelector('.topic-sub').textContent,original:document.querySelector('.original').innerHTML,turns:turnNumber});
+}
+function showCardDraft(term){
+const draft=cardDrafts.get(term),content=popup.querySelector('.content');
+document.querySelector('#term').textContent=term;
+if(draft){
+content.replaceChildren(...draft.nodes);document.querySelector('#note').value=draft.note;document.querySelector('#note').scrollTop=draft.noteScroll;document.querySelector('#follow-input').value=draft.input;document.querySelector('.topic-sub').textContent=draft.sub;document.querySelector('.original').innerHTML=draft.original;turnNumber=draft.turns;
+}else{
+const definitions={RAG:'RAG 会先检索相关资料，再把资料交给模型组织回答。它可以让回答参考指定的知识来源。','BLEU/ROUGE':'BLEU 和 ROUGE 是比较生成文本与参考文本重合程度的指标，常用于机器翻译和文本摘要评估。','准确率':'准确率表示全部样本中判断正确的比例。类别数量不均衡时，需要结合其他指标理解。','召回率':'召回率表示真正属于目标类别的样本中，有多少被模型成功找回。'};
+const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.textContent='通俗解释';
+const block=document.createElement('div');block.className='answer-block';const heading=document.createElement('h3');heading.textContent='这是什么';const paragraph=document.createElement('p');paragraph.textContent=definitions[term]||'在这张学习卡中继续整理解释、追问和自己的理解。';block.append(heading,paragraph);
+const threads=document.createElement('div');threads.className='thread-label';const count=document.createElement('span');count.id='turn-count';count.textContent='0 轮';threads.append(count);
+content.replaceChildren(eyebrow,block,threads);document.querySelector('#note').value='';document.querySelector('#follow-input').value='';document.querySelector('.topic-sub').textContent='继续整理这张待保存学习卡';document.querySelector('.original').textContent='原句　'+term+' 的学习笔记。';turnNumber=0;
+}
+mountFolds();requestAnimationFrame(()=>{content.scrollTop=draft?draft.scroll:0;document.querySelector('#note').scrollTop=draft?draft.noteScroll:0});
+}
+
+function switchPage(page){const previous=popup.dataset.page;if(previous==='card'&&page==='queue')captureCard();popup.dataset.page=page;document.querySelectorAll('[data-page-tab]').forEach(tab=>tab.setAttribute('aria-selected',String(tab.dataset.pageTab===page)));if(page==='queue'&&previous!=='queue')popup.querySelector('.queue-page').scrollTop=0;if(page==='card'&&previous==='queue'){const draft=cardDrafts.get(document.querySelector('#term').textContent);if(draft)requestAnimationFrame(()=>{popup.querySelector('.content').scrollTop=draft.scroll;document.querySelector('#note').scrollTop=draft.noteScroll})}}
+function returnToOrigin(){captureCard();showCardDraft(originalTerm);popup.dataset.updateOrigin='false';const saved=[...document.querySelectorAll('.queue-item')].some(row=>row.querySelector('.qinfo strong').textContent===originalTerm);document.querySelector('#save .save-label').textContent=saved?'更新待保存':'加入待保存';switchPage('card')}
+document.querySelectorAll('[data-page-tab]').forEach(tab=>tab.addEventListener('click',()=>switchPage(tab.dataset.pageTab)));
+document.querySelector('#queue-return').addEventListener('click',()=>{returnToOrigin();notify('已返回「'+originalTerm+'」学习卡')});
+
+let turnNumber=2;document.querySelector('#follow-form').addEventListener('submit',event=>{event.preventDefault();const input=document.querySelector('#follow-input');if(!input.value.trim())return;turnNumber+=1;const turn=document.createElement('div');turn.className='turn';const label=document.createElement('small');label.textContent=`你 · 追问 ${turnNumber}`;turn.append(label,document.createTextNode(input.value.trim()));const answer=document.createElement('div');answer.className='assistant';const who=document.createElement('small');who.textContent='Knowly';answer.append(who,document.createTextNode('可以先看最容易混淆的情况，再结合实际任务判断。这里是交互示意，不会调用模型。'));answerContent.querySelectorAll('.is-expanded').forEach(item=>item.classList.remove('is-expanded'));answerContent.append(turn,answer);document.querySelector('#turn-count').textContent=`${turnNumber} 轮`;input.value='';mountFolds();refreshFolds();requestAnimationFrame(()=>{answerContent.scrollTop+=turn.getBoundingClientRect().top-answerContent.getBoundingClientRect().top-8;input.focus({preventScroll:true})});notify('追问示例已添加')});
+function refreshQueueCount(){const total=document.querySelectorAll('.queue-item').length;document.querySelector('#count').textContent=String(total);}
+function addQueueItem(term){const row=document.createElement('div');row.className='queue-item';const number=document.createElement('span');number.className='qnum';number.textContent=String(document.querySelectorAll('.queue-item').length+1).padStart(2,'0');const info=document.createElement('span');info.className='qinfo';const title=document.createElement('strong');title.textContent=term;const meta=document.createElement('small');meta.textContent='当前网页 · 刚刚加入';info.append(title,meta);const actions=document.createElement('span');actions.className='qactions';const update=document.createElement('button');update.type='button';update.textContent='更新';const remove=document.createElement('button');remove.type='button';remove.textContent='移除';actions.append(update,remove);row.append(number,info,actions);document.querySelector('.queue-note').before(row);refreshQueueCount()}
+document.querySelector('#save').addEventListener('click',()=>{const term=document.querySelector('#term').textContent;const existing=[...document.querySelectorAll('.queue-item')].find(row=>row.querySelector('.qinfo strong').textContent===term);captureCard();if(!existing)addQueueItem(term);document.querySelector('#save .save-label').textContent='更新待保存';document.querySelector('#status').textContent=existing?'已更新待保存卡片':'已加入待保存清单';notify(existing?'已更新待保存卡片':'已加入待保存清单')});
+document.querySelector('.continue').addEventListener('click',()=>{document.querySelector('#save').click();notify('已保存，可继续在网页选词（交互预览）')});
+document.querySelector('#copy').addEventListener('click',()=>notify('交互预览：仅复制完整初始解释，不含追问和笔记'));
+document.querySelector('.queue-page').addEventListener('click',event=>{const update=event.target.closest('.qactions button:first-child');const remove=event.target.closest('.qactions button:last-child');if(update){const term=update.closest('.queue-item').querySelector('.qinfo strong').textContent;captureCard();showCardDraft(term);document.querySelector('#update-target').textContent='正在更新「'+term+'」';document.querySelector('#queue-return').textContent='返回「'+originalTerm+'」学习卡';document.querySelector('#save .save-label').textContent='更新待保存';popup.dataset.updateOrigin='true';switchPage('card');notify('打开「'+term+'」进行更新')}else if(remove){remove.closest('.queue-item').remove();refreshQueueCount();notify('已从待保存清单移除')}});
+document.querySelector('#queue-clear').addEventListener('click',()=>{document.querySelectorAll('.queue-item').forEach(row=>row.remove());refreshQueueCount();notify('待保存清单已清空')});document.querySelector('#queue-export').addEventListener('click',()=>notify('已开始合并导出（演示）'));
+
+
+const answerContent=popup.querySelector('.content');
+const initialBlock=answerContent.querySelector('.answer-block');
+for(const heading of [...initialBlock.querySelectorAll(':scope > h3')]){
+const section=document.createElement('section');section.className='knowledge-section';heading.before(section);section.append(heading);
+while(section.nextSibling&&!(section.nextSibling.nodeType===1&&section.nextSibling.tagName==='H3'))section.append(section.nextSibling);
+}
+
+let foldId=0,foldFrame=0;
+function refreshFolds(){
+for(const host of answerContent.querySelectorAll('.answer-block,.assistant,.turn')){
+const body=host.querySelector(':scope > .fold-body'),button=host.querySelector(':scope > .fold-toggle');
+if(!body||!body.getClientRects().length||!body.clientWidth)continue;
+const limit=parseFloat(getComputedStyle(host).getPropertyValue('--fold-limit'));
+const long=body.scrollHeight>limit+24;
+host.classList.toggle('has-fold',long);button.hidden=!long;
+const expanded=host.classList.contains('is-expanded');
+button.setAttribute('aria-expanded',String(long&&expanded));
+const text=expanded?'收起'+button.dataset.kind:'展开完整'+button.dataset.kind;
+if(button.textContent!==text)button.textContent=text;
+}}
+function scheduleFolds(){if(!foldFrame)foldFrame=requestAnimationFrame(()=>{foldFrame=0;refreshFolds()})}
+const foldResize=new ResizeObserver(scheduleFolds);
+function mountFolds(){
+for(const host of answerContent.querySelectorAll('.answer-block,.assistant,.turn')){
+if(host.querySelector(':scope > .fold-body'))continue;
+const body=document.createElement('div');body.className='fold-body';body.id='fold-body-'+(++foldId);
+for(const node of [...host.childNodes]){if(node.nodeType===1&&node.tagName==='SMALL')continue;body.append(node)}
+host.append(body);
+const button=document.createElement('button');button.type='button';button.className='fold-toggle';button.hidden=true;button.dataset.kind=host.classList.contains('answer-block')?'解释':host.classList.contains('turn')?'问题':'回答';button.setAttribute('aria-controls',body.id);button.setAttribute('aria-expanded','false');
+button.addEventListener('click',()=>{
+const collapsing=host.classList.contains('is-expanded');
+const hostTop=host.getBoundingClientRect().top;
+host.classList.toggle('is-expanded');refreshFolds();
+if(collapsing&&hostTop<answerContent.getBoundingClientRect().top){answerContent.scrollTop+=hostTop-answerContent.getBoundingClientRect().top-10}
+});
+host.insertBefore(button,body);foldResize.observe(body);
+}
+scheduleFolds();
+}
+new MutationObserver(mountFolds).observe(answerContent,{childList:true,subtree:true,characterData:true});
+new MutationObserver(scheduleFolds).observe(popup,{attributes:true,attributeFilter:['data-style','data-page']});
+mountFolds();
+
+
+const icons={copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/>',download:'<path d="M14 3H5v18h14V8zM14 3v5h5M12 10v7m-3-3 3 3 3-3"/>',save:'<path d="M7 3h10v18l-5-3-5 3zM9 9h6m-3-3v6"/>',update:'<path d="M20 7v5h-5M4 17v-5h5M6 7a7 7 0 0 1 12-2l2 3M4 16l2 3a7 7 0 0 0 12-2"/>',next:'<path d="m4 3 2 15 4-5 6-2zM14 18h7m-3-3 3 3-3 3"/>'};
+for(const [selector,kind] of [['#copy','copy'],['#download','download'],['#save','save'],['.continue','next']]){const button=document.querySelector(selector);button.querySelectorAll('.tool-icon,.action-icon,.action-arrow').forEach(e=>e.remove());button.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[kind]+'</svg>');}
+function syncSaveActions(){const updating=document.querySelector('#save .save-label').textContent.startsWith('更新');document.querySelector('.continue-label').textContent=updating?'更新并继续选词':'加入并继续选词';document.querySelector('#save svg').innerHTML=icons[updating?'update':'save'];}
+new MutationObserver(syncSaveActions).observe(document.querySelector('#save .save-label'),{childList:true,characterData:true,subtree:true});syncSaveActions();
+document.querySelector('#download').addEventListener('click',()=>notify('交互预览：Markdown 包含初始解释、全部追问和我的笔记'));
 </script>
 </body>
 </html>
